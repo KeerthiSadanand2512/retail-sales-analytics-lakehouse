@@ -1,0 +1,45 @@
+# Python environments and generated files
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Notebook scratch state (keep source notebooks)
+.ipynb_checkpoints/
+
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+.databrickscfg
+.databricks/
+.secrets/
+*.pem
+*.key
+
+# Local data, Spark output, and databases
+/data/*
+!/data/README.md
+spark-warehouse/
+metastore_db/
+derby.log
+checkpoints/
+*.parquet
+*.delta
+*.db
+*.sqlite*
+*.log
+
+# Machine/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
