@@ -1,3 +1,3 @@
 # SQL analyses
 
-Pending implementation. Add Gold table definitions and queries for trends, product contribution, and customer purchasing, following `../docs/metrics.md`. Document required tables and execution order.
+`sales_analysis.sql` answers monthly sales, product contribution, repeat-customer, and ID-coverage questions. Select the actual catalog and project schema in the SQL editor. Run only after a complete successful `01_pipeline` refresh. No query results are claimed yet.

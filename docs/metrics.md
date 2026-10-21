@@ -1,13 +1,13 @@
-# Proposed metrics
+# Implemented metric definitions
 
-Status: definitions to validate after dataset selection; no numerical results exist.
+Runtime validation is pending. All monetary measures are GBP under the UCI source description.
 
-- **Signed line value:** quantity × unit price, using decimal arithmetic and the source currency.
-- **Gross positive sales:** sum of eligible positive sale-line values.
-- **Return value:** absolute value of eligible negative return-line values, if the source encodes returns that way.
-- **Net recorded sales:** gross positive sales minus return value under documented source rules. Do not call this recognized revenue without evidence.
-- **Orders:** distinct eligible transaction IDs under a declared sale/cancellation policy. Count orders from line data, not rows; do not sum distinct-order counts across overlapping product groups.
-- **Average order value:** sale-only sales divided by sale-only distinct orders for the same population and currency. Return NULL for a zero denominator.
-- **Repeat customers:** customers with at least two distinct qualifying sale orders in the observed period. Exclude missing IDs from the customer denominator and report their coverage.
+- **Line value:** signed quantity × decimal unit price for eligible rows.
+- **Gross sales:** sum of positive eligible line values, including sales with missing customer IDs.
+- **Return value:** absolute sum of negative eligible line values. This is a source-recorded return/cancellation adjustment proxy, not verified refunded cash.
+- **Net sales:** gross sales minus return value. No cost, tax, or revenue-recognition model is inferred.
+- **Sale orders:** distinct invoice IDs among eligible positive-quantity lines. Count at the requested grain; product-level distinct counts must not be summed into overall order counts.
+- **Average sale-order value:** gross sales / distinct sale orders in the same period; NULL for zero denominator.
+- **Repeat-customer share:** share of identified purchasing customers with at least two qualifying positive sale invoices in the observed input. Excludes missing IDs and cancellations from order counts; disclose ID coverage separately.
 
-Group by currency before aggregation. Define date boundaries, treatment of partial periods, missing IDs, returns, and price anomalies in the final findings. Customer behavior describes this dataset's observation window only. Profit, margin, forecasts, and business improvement claims are outside the initial evidence.
+The small sample is a pipeline-learning input, not a basis for full-period claims. December 2011 ends on the ninth; raw month-to-month growth is not a comparable-period growth metric. Duplicate-looking lines remain in all metrics. High-volume lines and adjustments should be investigated before drawing business conclusions.
