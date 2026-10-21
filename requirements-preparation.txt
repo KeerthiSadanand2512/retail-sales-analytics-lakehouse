@@ -1,0 +1,2 @@
+# Local workbook conversion only; Databricks supplies PySpark and Delta.
+openpyxl==3.1.5

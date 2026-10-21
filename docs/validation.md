@@ -1,15 +1,17 @@
-# Validation plan
+# Validation status
 
-Status: proposed checks only; no tests have run.
+Four converter unit tests pass locally: CSV quoting/multiline descriptions, duplicate and leading-zero preservation, blank IDs and ISO dates, sample labeling, refusal to overwrite, and invalid sample limits (some cases share a test).
 
-## Required acceptance evidence
+The original workbook has been converted locally. Source and CSV checksums are recorded in `../reports/preparation.md`. This validates preparation, not Spark execution.
 
-1. Record input checksum, source rows, schema, missingness, date range, and currency coverage.
-2. Reconcile each Bronze row to an accepted or rejected processing outcome. Document any explicit deduplication separately and prove its key does not discard legitimate lines.
-3. Check typed fields, decimal precision, date parsing, required identifiers, return flags, and quality reasons with small synthetic edge cases.
-4. Reconcile Silver signed line value to Gold totals by currency and period. Explain all exclusions. Compare independent SQL and PySpark calculations.
-5. Run twice against the same immutable input. Confirm unchanged business row counts and metrics, with no duplicate ingestion.
-6. Check empty input, invalid timestamps, null customer IDs, duplicate-looking legitimate lines, returns, zero prices, and zero-denominator metrics.
-7. Run in the actual Free Edition workspace and record the environment, revision, timestamp, row counts, check results, and limitations.
+## Workspace acceptance still required
 
-Completion requires executable source, reproducible setup, successful runtime evidence, and findings linked to reconciled outputs. A folder or test plan is not a passed test. Redact private identifiers and sensitive notebook outputs before publishing evidence.
+1. Run `02_smoke_checks` and record the exact pass message and environment.
+2. Run sample `01_pipeline`; require source rows = Silver rows = accepted + rejected.
+3. Require Gold daily and product net totals to equal eligible Silver.
+4. Repeat with the identical input; compare business rows/counts and totals. Ingestion timestamps may change.
+5. Review quality reasons, cancellations, missing customer coverage, and duplicate-looking rows before full-data interpretation.
+6. Run full input and save sanitized evidence using the run-log template.
+7. Check independent SQL totals against the notebook output before publishing findings.
+
+No Spark/Delta/SQL runtime tests have passed yet. Local preparation is not a substitute for these checks.

@@ -1,16 +1,16 @@
 # Roadmap
 
-All implementation milestones are pending. Only the documentation scaffold is prepared.
+- [x] Create documentation scaffold and repository structure.
+- [x] Select UCI Online Retail and document attribution, currency, and coverage.
+- [x] Convert source data locally; prepare a 10,000-row learning sample.
+- [x] Pass four local conversion tests.
+- [x] Write shared PySpark rules, Delta full-refresh notebook, synthetic checks, and SQL analyses.
+- [ ] Create Free Edition workspace and upload sample.
+- [ ] Run synthetic Spark checks in Databricks.
+- [ ] Run sample pipeline and validate Delta outputs.
+- [ ] Run identical input twice; record unchanged business counts and totals.
+- [ ] Run full input and record quality/financial reconciliation.
+- [ ] Publish reconciled findings, figures, and limitations.
+- [ ] Build a dashboard after metric review.
 
-- [x] Prepare initial README, architecture proposal, and folder documentation.
-- [ ] Select dataset, verify license/privacy, and complete source record.
-- [ ] Confirm Free Edition setup and record actual environment.
-- [ ] Profile input and finalize contract, line grain, keys, and metric policies.
-- [ ] Implement Bronze ingestion into Delta.
-- [ ] Implement Silver typing, quality outcomes, and return handling.
-- [ ] Implement Gold tables and SQL analyses.
-- [ ] Validate reconciliation, edge cases, and repeatable reruns.
-- [ ] Publish a report with findings, figures, limitations, and execution evidence.
-- [ ] Add a dashboard if available within Free Edition constraints.
-
-Optional later work: incremental processing after key validation, additional quality checks, and workflow scheduling within current free quotas. These are extensions, not completed capabilities.
+Prepared implementation is not runtime evidence. Incremental processing and scheduling are optional future milestones.

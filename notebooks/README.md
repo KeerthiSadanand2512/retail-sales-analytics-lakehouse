@@ -1,12 +1,9 @@
-# Planned Databricks notebooks
+# Databricks source notebooks
 
-No executable notebooks are included yet.
+Import all three `.py` files into the same workspace folder as notebooks.
 
-1. `00_profile_source` — inspect the approved input and finalize the data contract.
-2. `01_ingest_bronze` — preserve source rows and ingestion metadata in Delta.
-3. `02_clean_silver` — type fields, record quality outcomes, and apply documented policies.
-4. `03_build_gold` — create reconciled metric tables.
-5. `04_analyze_sales` — answer business questions with SQL and visualizations.
-6. `05_validate` — record reconciliation and rerun checks.
+- `00_transformations.py`: shared cleaning and Gold aggregation functions.
+- `02_smoke_checks.py`: run first; synthetic edge cases; no persisted tables.
+- `01_pipeline.py`: parameterized CSV-to-Delta pipeline; review six target tables and allow full refresh explicitly.
 
-Export reviewable source files after implementation. Keep credentials and sensitive outputs out of notebooks. Record the execution order, parameters, and actual runtime environment.
+Execution in the actual Free Edition workspace remains pending. See `../docs/setup.md`.

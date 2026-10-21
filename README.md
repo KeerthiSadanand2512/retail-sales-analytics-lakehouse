@@ -1,54 +1,57 @@
 # Retail Sales Analytics Lakehouse
 
-A planned Data Engineering + Analytics learning project using **Databricks Free Edition, PySpark, Delta Lake, and SQL**.
+A Data Engineering + Analytics learning project using **Databricks Free Edition, PySpark, Delta Lake, and SQL**.
 
-**Status: documentation scaffold only.** No ingestion pipeline, executed notebooks, Delta tables, tests, dashboard, or measured results are included yet. This is intended as a future flagship portfolio project, not a production system.
+**Status: first implementation prepared; Databricks execution pending.** Dataset conversion has run locally and its four unit tests pass. PySpark transformations, Delta writes, and SQL analysis have not yet run in Databricks. No business findings or production experience are claimed.
+
+## Dataset
+
+[UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail), by Daqing Chen (2015), DOI [10.24432/C5BW33](https://doi.org/10.24432/C5BW33). UCI describes 541,909 retail transaction lines from December 1, 2010 through December 9, 2011, with prices in sterling. License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). These source facts are not pipeline findings.
+
+The conversion preserves records and duplicates, formats timestamps as ISO text, and writes UTF-8 CSV. Raw data and customer-level outputs are excluded from Git. See [source contract](docs/data-contract.md).
+
+## Start in Databricks
+
+Follow [the step-by-step setup](docs/setup.md). Import the three Python source notebooks together into the same workspace folder, then run:
+
+1. `02_smoke_checks` — invented edge cases, no persistent tables.
+2. `01_pipeline` — enter the catalog, dedicated schema, and uploaded CSV path; explicitly allow full refresh.
+3. `sql/sales_analysis.sql` — select the same catalog/schema in the SQL editor.
+
+`00_transformations` supplies shared functions via `%run`. All Spark checks still need actual runtime execution. Begin with the 10,000-row learning sample before the full dataset. The first rows are not representative of the whole observation period.
+
+## Workflow
+
+```text
+UCI XLSX -> local CSV conversion -> uploaded CSV in Unity Catalog volume
+       -> Bronze Delta -> Silver Delta + rejects -> Gold Delta -> SQL analytics
+```
+
+The pipeline creates or replaces six project tables in a dedicated schema: `retail_bronze`, `retail_silver`, `retail_rejects`, `retail_gold_daily`, `retail_gold_product`, and `retail_gold_customer`. It checks row accounting and daily/product financial reconciliation. It preserves duplicate-looking lines because the source does not supply a reliable unique line key. Tables refresh individually; this is not an atomic multi-table transaction. Run one refresh at a time.
 
 ## Business questions
 
-- How do recorded sales and order counts change by month?
-- Which products and countries account for the largest share of recorded sales?
-- How do basket value and repeat purchasing vary across customers?
-- How do returns, missing identifiers, and duplicates affect these metrics?
+- How do monthly recorded sales, returns, and sale-order counts change?
+- Which products contribute the most recorded sales?
+- What proportion of identified purchasing customers place repeat orders?
+- How do invalid values and missing customer IDs affect metric coverage?
 
-Profit and margin will not be reported unless the selected dataset supports a documented cost model. Sales do not establish profit or causal business impact.
+Profit and margin are out of scope because product costs are absent. Cancellation/negative-line values are reported as source-recorded adjustments, not proof of completed refunds. December 2010 and December 2011 have unequal coverage.
 
-## Planned workflow
+## Project files
 
-```text
-Approved retail CSV -> Bronze Delta -> Silver Delta -> Gold Delta -> SQL analysis -> report/dashboard
-                         raw records     typed/clean     metric tables
-```
-
-The initial scope is a small, manually triggered batch workflow. Dataset selection, licensing review, schema decisions, implementation, and runtime validation remain open.
-
-## Start here
-
-1. Read [the roadmap](docs/roadmap.md) and [architecture](docs/architecture.md).
-2. Follow [Free Edition setup](docs/setup.md); use the no-cost Free Edition rather than a paid cloud trial.
-3. Select a dataset and complete [the source record and proposed data contract](docs/data-contract.md).
-4. Implement notebooks in the order described in [notebooks/README.md](notebooks/README.md).
-5. Record quality checks and rerun evidence using [the validation plan](docs/validation.md).
-6. Publish findings only after reconciling SQL outputs with the curated tables.
-
-## Repository structure
-
-| Folder | Purpose |
+| Folder | Contents |
 | --- | --- |
-| `docs/` | Architecture, setup, data contract, metrics, roadmap, validation |
-| `notebooks/` | Planned numbered Databricks notebooks |
-| `src/` | Future reusable PySpark transformations |
-| `sql/` | Future Gold models and analytical queries |
-| `tests/` | Future fixtures and transformation/quality checks |
-| `reports/` | Future findings, figures, and execution evidence |
-| `data/` | Dataset instructions only; raw and generated data excluded |
+| `scripts/` | Deterministic workbook-to-CSV conversion |
+| `notebooks/` | Shared PySpark logic, batch pipeline, synthetic checks |
+| `sql/` | Monthly sales, product contribution, repeat purchasing, coverage queries |
+| `tests/` | Local converter unit tests |
+| `docs/` | Setup, architecture, contract, metrics, roadmap, validation |
+| `reports/` | Local preparation evidence and Databricks run-log template |
+| `data/` | Instructions; source files remain outside Git |
 
-## Zero-cost scope
+## Zero-cost learning scope
 
-Use the Databricks Free Edition workspace, its available serverless resources, small batches, and manual data upload. No paid cloud storage, external cloud account, paid connector, or always-on service is required by this plan. Free Edition is quota-limited; resource availability is not guaranteed. Stop when quota is exhausted instead of switching to paid compute.
+Use [Databricks Free Edition](https://docs.databricks.com/aws/en/getting-started/free-edition), available serverless resources, manual upload, and small batches. No external paid cloud services are required. Free Edition has [usage and feature limits](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations); wait if quotas are exhausted. Documentation checked October 21, 2026.
 
-See the official [Free Edition signup guide](https://docs.databricks.com/aws/en/getting-started/free-edition) and [limitations](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations). Features and limits can change; verify them before implementing. Documentation checked on October 20, 2026.
-
-## Evidence and attribution
-
-All implementation milestones are pending. Record the dataset publisher, source URL, license, date range, units, and limitations before use. Do not reuse private project files or publish customer personal data. No dataset or software license is granted by this scaffold; choose an appropriate code license separately and retain source attribution.
+See [validation evidence](reports/preparation.md), [metric rules](docs/metrics.md), and [roadmap](docs/roadmap.md). No new software license is applied by this update; the source dataset retains its own attribution requirements.
