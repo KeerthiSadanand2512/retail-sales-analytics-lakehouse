@@ -1,10 +1,10 @@
-# Save the Databricks charts
+# Saved Databricks chart exports
 
-Two charts have been configured during the guided workspace run. Actual PNG exports are pending; this file does not claim images already exist.
+The user supplied these actual Databricks PNG exports on October 29, 2026:
 
-1. Monthly net sales: save as `monthly_net_sales.png`. Include the month axis, GBP measure, and note that December 2011 ends on December 9.
-2. Top ten reviewed merchandise codes: save as `top_merchandise_net_sales.png`. Use descending net sales, one color, product codes as categories, and a note excluding DOT and POST.
+- [Monthly net sales](figures/monthly_net_sales.png)
+- [Top ten reviewed merchandise codes](figures/top_merchandise_net_sales.png)
 
-Use a chart image-download option if provided. Otherwise take a screenshot containing the Markdown heading, entire chart, axes, and explanatory note. Include no email addresses, workspace account URLs, or customer-level rows. Send the images in the chat so they can be added under `reports/figures/` and linked from the findings.
+The images are stored unchanged. [The findings report](findings.md#databricks-chart-exports) provides headings, GBP units, the December 2011 partial-month caveat, and postage exclusions. The monthly chart axis says Total Sales, but the plotted values are net recorded sales. Future re-exports should label it Net Sales (GBP).
 
-Also export the executed notebooks through the notebook's export menu using a source format. Capture the actual modified setup cell and added SQL analysis. Review notebook outputs before sharing; keep raw customer IDs and credentials out of public artifacts. Runtime version and exact revision are still required for a complete reproducibility record.
+The exact executed notebook source, runtime version, and run revision are still outstanding. Export the modified notebook in source format and review outputs for credentials or customer-level data before publication.

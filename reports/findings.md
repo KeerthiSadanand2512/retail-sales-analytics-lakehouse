@@ -36,8 +36,22 @@ The full notebook was run twice with unchanged reported input/eligible/reject co
 
 Duplicate-looking source lines were preserved because a reliable unique line key was not established. Positive prices and nonzero quantities determine current eligibility; negative quantities are source-recorded adjustments, not verified refunded cash. Profit, margin, causal improvements, production scalability, and forecasts are not measured.
 
-The workspace setup was edited during troubleshooting to use fixed catalog/schema/path variables after widget issues. The exact executed notebook export, environment version, and run revision remain to be captured before claiming that the current repository notebook was reproduced unchanged. Charts were reviewed in conversation but image exports have not yet been committed.
+The workspace setup was edited during troubleshooting to use fixed catalog/schema/path variables after widget issues. The exact executed notebook export, environment version, and run revision remain to be captured before claiming that the current repository notebook was reproduced unchanged. Databricks chart image exports are included below. The exported images omit the notebook headings, so the captions supply currency, scope, and coverage notes.
 
 ## Source and attribution
 
 Chen, D. (2015). [Online Retail](https://doi.org/10.24432/C5BW33). UCI Machine Learning Repository. [Dataset](https://archive.ics.uci.edu/dataset/352/online+retail), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). This project converts the source workbook to CSV, applies documented eligibility rules, and aggregates the results. No raw customer-level data is published here.
+
+## Databricks chart exports
+
+### Monthly net recorded sales (GBP)
+
+![Monthly net recorded sales in GBP, December 2010 to December 2011](figures/monthly_net_sales.png)
+
+The exported axis says “Total Sales”; plotted values are **net recorded sales in GBP**, reconciled to the SQL results above. December 2011 covers December 1–9 only and is not comparable with full months. November 2011 is the peak at GBP 1,461,756.25.
+
+### Top ten reviewed merchandise codes by net sales (GBP)
+
+![Top ten reviewed merchandise codes by net sales in GBP](figures/top_merchandise_net_sales.png)
+
+Excludes the identified postage codes DOT and POST; all ten displayed codes were checked against source descriptions. Code 22423 (REGENCY CAKESTAND 3 TIER) leads at GBP 164,762.19. Labels show product codes because descriptions vary within some codes. Bars are sorted by net sales descending.
