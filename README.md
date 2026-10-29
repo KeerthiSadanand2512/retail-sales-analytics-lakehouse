@@ -2,7 +2,9 @@
 
 A Data Engineering + Analytics learning project using **Databricks Free Edition, PySpark, Delta Lake, and SQL**.
 
-**Status: first implementation prepared; Databricks execution pending.** Dataset conversion has run locally and its four unit tests pass. PySpark transformations, Delta writes, and SQL analysis have not yet run in Databricks. No business findings or production experience are claimed.
+**Status: guided Databricks sample and full-data runs validated from user-supplied outputs.** Full-data row accounting, daily/product financial reconciliation, repeated-run counts/totals, and independent SQL totals passed in the reported workspace results. Four local conversion tests also passed. The executed notebook was edited during setup troubleshooting; its export and runtime version still need to be captured. This is a learning project, with no production experience claimed.
+
+See [validated findings](reports/findings.md) for results and limitations and [chart export instructions](reports/chart-export.md) for the remaining visual artifacts.
 
 ## Dataset
 
@@ -18,7 +20,7 @@ Follow [the step-by-step setup](docs/setup.md). Import the three Python source n
 2. `01_pipeline` — enter the catalog, dedicated schema, and uploaded CSV path; explicitly allow full refresh.
 3. `sql/sales_analysis.sql` — select the same catalog/schema in the SQL editor.
 
-`00_transformations` supplies shared functions via `%run`. All Spark checks still need actual runtime execution. Begin with the 10,000-row learning sample before the full dataset. The first rows are not representative of the whole observation period.
+`00_transformations` supplies shared functions via `%run`. The guided workspace run passed synthetic checks and sample/full-data reconciliation; exact repository-version reproduction remains pending. Begin with the 10,000-row learning sample before the full dataset. The first rows are not representative of the whole observation period.
 
 ## Workflow
 
