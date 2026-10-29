@@ -1,6 +1,6 @@
 # First Databricks run
 
-Status: local data preparation checked; workspace execution pending.
+Status: guided sample and full-data runs passed the reported checks. The exported working notebook has been reviewed; the cleaned revision needs a new workspace run.
 
 ## 1. Create your free workspace
 
@@ -33,18 +33,19 @@ Use the actual catalog name. Do not paste the example placeholders into the note
 
 ## 4. Import and test the notebooks
 
-Download the three `.py` files from `notebooks/`. Import them as Python source notebooks into the same workspace folder so relative `%run` resolves. Attach available serverless notebook compute.
+Import `00_transformations.py`, `02_smoke_checks.py`, and either `01_pipeline.py` or `01_pipeline.ipynb` into the same workspace folder so relative `%run` resolves. Do not import both pipeline formats under the same name. Attach available serverless notebook compute. Published chart exports are separate; recreate notebook chart settings after importing the cleaned notebook.
 
 Run `02_smoke_checks` first. Its printed pass message is required before running real data. It does not create tables. Record failures before changing quality rules.
 
 ## 5. Run the batch
 
-Open `01_pipeline`. Enter your existing catalog, schema `retail_learning`, and exact uploaded CSV path. The default `allow_full_refresh=no` prevents writes. Review the six table names in the README and use a schema reserved for this project; set the widget to `yes` when ready. Run all cells.
+Open `01_pipeline` and edit the configuration constants: `CATALOG`, `SCHEMA`, `INPUT_PATH`, and `ALLOW_FULL_REFRESH`. Defaults use the workspace catalog, retail_learning schema, and sample CSV, with writes disabled. Use the exact path to your uploaded file. Run the configuration cell and review all six printed target table names. Set `ALLOW_FULL_REFRESH = True` only when ready to replace those project tables, then run all cells from the beginning. No widgets are needed. The ingestion cell selects the catalog/schema for the subsequent SQL cells and checks header and nonempty input before replacing Bronze. Keep the input file immutable during a run.
 
 The notebook overwrites the project's six named tables, preserving source rows in Bronze and all typed rows in Silver, with rejected rows copied to `retail_rejects`. Do not run simultaneous refreshes. If interrupted, rerun the whole notebook; tables are not committed together.
 
-Confirm the printed row counts and checks, then fill in `reports/databricks-run-template.md`. Run again with the same immutable input and compare counts and net totals to check rerun behavior. This remains an acceptance step, not a completed test in this repository.
+Confirm the printed row counts and checks, then fill in `reports/databricks-run-template.md`. Run again with the same immutable input and compare counts and net totals to check rerun behavior. The earlier guided full-data run repeated successfully; repeat these checks again for the cleaned notebook. Record the new notebook's printed Python/Spark versions and actual Git revision, not just the original export's environment version.
 
 ## 6. Explore with SQL
 
 Open `sql/sales_analysis.sql` in the SQL editor, select your catalog and `retail_learning` schema, and run each statement. If SQL compute is unavailable under current quotas, wait. Record observed results and limitations before writing business findings. Do not publish raw customer IDs or customer-level exports.
+

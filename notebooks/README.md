@@ -1,9 +1,8 @@
-# Databricks source notebooks
+# Databricks notebooks
 
-Import all three `.py` files into the same workspace folder as notebooks.
+Import `00_transformations.py`, `02_smoke_checks.py`, and one pipeline format into the same folder. Choose either `01_pipeline.py` (Databricks source) or `01_pipeline.ipynb` (Jupyter), which contain the same cells; do not create two copies named 01_pipeline.
 
-- `00_transformations.py`: shared cleaning and Gold aggregation functions.
-- `02_smoke_checks.py`: run first; synthetic edge cases; no persisted tables.
-- `01_pipeline.py`: parameterized CSV-to-Delta pipeline; review six target tables and allow full refresh explicitly.
+Run the smoke checks first. In the pipeline, edit the configuration constants and inspect the six target names, then enable `ALLOW_FULL_REFRESH` explicitly. Defaults point to the learning sample and disable writes. Run all cells sequentially so shared functions and SQL catalog/schema context are established.
 
-Execution in the actual Free Edition workspace remains pending. See `../docs/setup.md`.
+The original export recorded passing full-data results. This reviewed revision is output-free and needs a new Databricks run. See [review](../reports/notebook-review.md), [original aggregate evidence](../reports/notebook-export-evidence.json), and [setup](../docs/setup.md). Recreate chart settings after importing; previous PNG exports are retained separately.
+

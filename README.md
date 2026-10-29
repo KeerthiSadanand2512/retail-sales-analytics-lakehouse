@@ -2,9 +2,9 @@
 
 A Data Engineering + Analytics learning project using **Databricks Free Edition, PySpark, Delta Lake, and SQL**.
 
-**Status: guided Databricks sample and full-data runs validated from user-supplied outputs.** Full-data row accounting, daily/product financial reconciliation, repeated-run counts/totals, and independent SQL totals passed in the reported workspace results. Four local conversion tests also passed. The executed notebook was edited during setup troubleshooting; its export and runtime version still need to be captured. This is a learning project, with no production experience claimed.
+**Status: guided Databricks sample and full-data runs validated from user-supplied outputs.** Full-data row accounting, daily/product financial reconciliation, repeated-run counts/totals, and independent SQL totals passed in the reported workspace results. Four local conversion tests also passed. The executed notebook export has now been reviewed. Its metadata records Databricks environment version 6; exact Python and Spark versions remain unrecorded for that historical run. The cleaned notebook requires a fresh workspace run. This is a learning project, with no production experience claimed.
 
-See [validated findings](reports/findings.md) for results and limitations and [chart export instructions](reports/chart-export.md) for the remaining visual artifacts.
+See [validated findings](reports/findings.md) for results and limitations and [chart export instructions](reports/chart-export.md) for saved visual artifacts.
 
 ## Dataset
 
@@ -14,10 +14,10 @@ The conversion preserves records and duplicates, formats timestamps as ISO text,
 
 ## Start in Databricks
 
-Follow [the step-by-step setup](docs/setup.md). Import the three Python source notebooks together into the same workspace folder, then run:
+Follow [the step-by-step setup](docs/setup.md). Import either `notebooks/01_pipeline.py` or `notebooks/01_pipeline.ipynb` for the pipeline, alongside the shared and smoke-check notebooks. The two pipeline formats contain the same cells. See the [export review](reports/notebook-review.md) for changes and validation limits. Import the three Python source notebooks together into the same workspace folder, then run:
 
 1. `02_smoke_checks` — invented edge cases, no persistent tables.
-2. `01_pipeline` — enter the catalog, dedicated schema, and uploaded CSV path; explicitly allow full refresh.
+2. `01_pipeline` — edit the configuration constants for catalog, dedicated schema, and uploaded CSV path; set `ALLOW_FULL_REFRESH = True` only after reviewing the six target tables.
 3. `sql/sales_analysis.sql` — select the same catalog/schema in the SQL editor.
 
 `00_transformations` supplies shared functions via `%run`. The guided workspace run passed synthetic checks and sample/full-data reconciliation; exact repository-version reproduction remains pending. Begin with the 10,000-row learning sample before the full dataset. The first rows are not representative of the whole observation period.
@@ -57,3 +57,4 @@ Profit and margin are out of scope because product costs are absent. Cancellatio
 Use [Databricks Free Edition](https://docs.databricks.com/aws/en/getting-started/free-edition), available serverless resources, manual upload, and small batches. No external paid cloud services are required. Free Edition has [usage and feature limits](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations); wait if quotas are exhausted. Documentation checked October 21, 2026.
 
 See [validation evidence](reports/preparation.md), [metric rules](docs/metrics.md), and [roadmap](docs/roadmap.md). No new software license is applied by this update; the source dataset retains its own attribution requirements.
+
