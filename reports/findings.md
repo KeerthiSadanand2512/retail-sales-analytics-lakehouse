@@ -36,7 +36,7 @@ The full notebook was run twice with unchanged reported input/eligible/reject co
 
 Duplicate-looking source lines were preserved because a reliable unique line key was not established. Positive prices and nonzero quantities determine current eligibility; negative quantities are source-recorded adjustments, not verified refunded cash. Profit, margin, causal improvements, production scalability, and forecasts are not measured.
 
-The workspace setup was edited during troubleshooting to use fixed catalog/schema/path variables after widget issues. The exact executed notebook export, environment version, and run revision remain to be captured before claiming that the current repository notebook was reproduced unchanged. Databricks chart image exports are included below. The exported images omit the notebook headings, so the captions supply currency, scope, and coverage notes.
+The workspace setup was edited during troubleshooting to use fixed catalog/schema/path variables after widget issues. The executed notebook export has now been reviewed and its original aggregate reconciliation stream and checksum preserved in [notebook-export-evidence.json](notebook-export-evidence.json). Metadata identifies Databricks environment version 6; exact historical Python/Spark versions and run revision remain unrecorded. The cleaned notebook must be rerun before claiming its runtime validation. See [the review](notebook-review.md). Databricks chart image exports are included below. The exported images omit the notebook headings, so the captions supply currency, scope, and coverage notes.
 
 ## Source and attribution
 
@@ -55,3 +55,4 @@ The exported axis says “Total Sales”; plotted values are **net recorded sale
 ![Top ten reviewed merchandise codes by net sales in GBP](figures/top_merchandise_net_sales.png)
 
 Excludes the identified postage codes DOT and POST; all ten displayed codes were checked against source descriptions. Code 22423 (REGENCY CAKESTAND 3 TIER) leads at GBP 164,762.19. Labels show product codes because descriptions vary within some codes. Bars are sorted by net sales descending.
+
