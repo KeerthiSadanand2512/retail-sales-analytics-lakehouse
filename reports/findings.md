@@ -64,7 +64,7 @@ The full-data notebook ran twice with unchanged row counts and net sales. Daily 
 
 Duplicate-looking source lines were retained because invoice and product codes do not establish a unique line key. The analysis describes recorded historical transactions; it does not demonstrate causal business improvements or predict future sales.
 
-The exported notebook summary and checksum are in [the execution record](notebook-export-evidence.json). Its metadata records Databricks environment version 6, but the exact Python/Spark versions and Git revision of that run were not captured. The latest notebook cleanup has local checks and still needs a fresh Databricks run. See [validation](../docs/validation.md).
+The exported notebook summary and checksum are in [the execution record](notebook-export-evidence.json). Its metadata records Databricks environment version 6, but the exact Python/Spark versions and Git revision of that run were not captured. The updated Python notebook has since passed full-data reconciliation on Python 3.12.3 and Spark 4.2.0 with unchanged counts and net sales. See [the latest run record](runtime-validation.md). See [validation](../docs/validation.md).
 
 ## Data source
 

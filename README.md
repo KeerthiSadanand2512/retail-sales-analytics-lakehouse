@@ -17,7 +17,7 @@ I built this project to work through both sides of an analytics problem: prepari
 | Identified purchasing customers | 4,338 |
 | Identified customers with two or more sale orders | 65.58% |
 
-These results come from the completed Databricks run. A second run returned the same row counts and net-sales total, and SQL checks matched the pipeline totals. The latest notebook cleanup has passed local tests but still needs a new Databricks run; see [validation](docs/validation.md).
+These results come from the completed Databricks run. A second run returned the same row counts and net-sales total, and SQL checks matched the pipeline totals. The updated Python notebook also passed full-data row accounting and daily/product reconciliation on Python 3.12.3 and Spark 4.2.0, matching the earlier totals. See the [run record](reports/runtime-validation.md) and [validation](docs/validation.md).
 
 ## What the analysis showed
 

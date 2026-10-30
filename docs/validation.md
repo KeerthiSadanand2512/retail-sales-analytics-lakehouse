@@ -22,9 +22,11 @@ The [export record](../reports/notebook-export-evidence.json) preserves the orig
 
 The preflight tests mock Spark access. They test failure handling, not Delta persistence or Spark SQL. The Python notebook was checked against the earlier Jupyter version before the duplicate was removed. All code and Markdown cells were preserved. Preflight tests now read the Python source directly.
 
-## Remaining check
+## Updated Python notebook run
 
-The current notebook includes configuration and query cleanup made after the successful run. It has not yet been rerun in Databricks. Run the smoke checks, sample, full input, repeat refresh, and SQL cross-check again before recording runtime validation for that revision.
+The updated `01_pipeline.py` was run on Python 3.12.3 and Spark 4.2.0. Its reported full-data counts and net sales match the table above, and row accounting plus daily/product reconciliation passed. See [the run record](../reports/runtime-validation.md).
+
+A second run and fresh independent SQL outputs for this latest revision have not yet been recorded. Earlier repeat-run and SQL evidence remains documented separately.
 
 The earlier export records Databricks environment version 6. Exact Python/Spark versions and the Git revision of that run were not captured. Use the [run-record template](../reports/databricks-run-template.md) for the next run.
 

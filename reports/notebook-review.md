@@ -18,5 +18,5 @@ Cleaning rules, financial calculations, and Gold aggregations were not changed b
 
 Seven local preflight tests passed. Python source and cell parity with the earlier Jupyter version were checked before removing the duplicate. Preflight tests read the Python source directly. The Spark calls in these tests are mocked.
 
-The revised notebook still needs a Databricks run. The earlier results remain valid for the executed version, but do not establish runtime validation of later changes. Environment version 6 is recorded in the export; the earlier Python/Spark versions and Git revision are unknown.
+The updated Python notebook has now passed full-data row accounting and daily/product reconciliation on Python 3.12.3 and Spark 4.2.0; see [the run record](runtime-validation.md). A fresh repeat run and independent SQL outputs for this revision remain to be recorded. Environment version 6 is recorded in the export; the earlier Python/Spark versions and Git revision are unknown.
 

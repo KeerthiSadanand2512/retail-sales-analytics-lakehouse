@@ -12,10 +12,11 @@
 - Checked the descriptions of the top merchandise codes and separated postage.
 - Published the findings and two chart exports.
 - Added local conversion and notebook preflight tests.
+- Ran the updated Python notebook on Python 3.12.3 and Spark 4.2.0 with matching full-data reconciliation.
 
 ## Next
 
-- Run the latest cleaned notebook in Databricks and capture its Python/Spark versions and Git revision.
+- Record a repeat run and independent SQL checks for the updated notebook, with its exact executed Git revision.
 - Update the monthly chart axis from “Total Sales” to “Net Sales (GBP).”
 - Build a dashboard from the validated metrics.
 

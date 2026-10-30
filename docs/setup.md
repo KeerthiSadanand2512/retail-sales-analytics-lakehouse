@@ -1,6 +1,6 @@
 # First Databricks run
 
-The original sample and full-data runs passed reconciliation. The current notebook includes later cleanup and needs a fresh run; see [validation](validation.md).
+The original sample and full-data runs passed reconciliation. The updated Python notebook has also passed full-data reconciliation on Python 3.12.3 and Spark 4.2.0; see [validation](validation.md).
 
 ## 1. Create your free workspace
 
