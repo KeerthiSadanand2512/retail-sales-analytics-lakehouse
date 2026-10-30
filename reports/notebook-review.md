@@ -10,12 +10,13 @@ The first full-data run used fixed catalog, schema, and input-path settings afte
 - Removed duplicate queries and calculated monthly distinct orders directly from Silver.
 - Moved the merchandise caption above its chart query and kept the description checks separate.
 - Added Python/Spark version output for future run records.
-- Kept matching Python and Jupyter formats, with outputs and old chart settings removed. Chart PNGs are stored separately.
+- Consolidated the pipeline into `notebooks/01_pipeline.py`, preserving every code and Markdown cell from the earlier Jupyter version. Chart PNGs are stored separately.
 
 Cleaning rules, financial calculations, and Gold aggregations were not changed by this cleanup. The shared notebook is loaded through relative `%run` and was not embedded in the original export.
 
 ## Checks and remaining work
 
-Seven local preflight tests passed. Python syntax, notebook structure, cleared outputs, and matching cells between the two formats were checked. The Spark calls in these tests are mocked.
+Seven local preflight tests passed. Python source and cell parity with the earlier Jupyter version were checked before removing the duplicate. Preflight tests read the Python source directly. The Spark calls in these tests are mocked.
 
 The revised notebook still needs a Databricks run. The earlier results remain valid for the executed version, but do not establish runtime validation of later changes. Environment version 6 is recorded in the export; the earlier Python/Spark versions and Git revision are unknown.
+

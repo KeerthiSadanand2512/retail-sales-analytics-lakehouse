@@ -4,7 +4,7 @@ A retail data pipeline and sales analysis built with **Databricks Free Edition, 
 
 I built this project to work through both sides of an analytics problem: preparing reliable tables and explaining what the numbers actually mean. It uses the UCI Online Retail dataset, with 541,909 transaction lines from a UK retailer, to examine sales, product performance, and repeat purchasing.
 
-[Read the analysis](reports/findings.md) · [Explore the pipeline](notebooks/01_pipeline.ipynb) · [Run the project](docs/setup.md)
+[Read the analysis](reports/findings.md) · [Explore the pipeline](notebooks/01_pipeline.py) · [Run the project](docs/setup.md)
 
 ## Results at a glance
 
@@ -73,3 +73,4 @@ The [setup guide](docs/setup.md) covers the commands, paths, and table names. Ea
 Chen, D. (2015). [Online Retail](https://doi.org/10.24432/C5BW33). UCI Machine Learning Repository. [Source page](https://archive.ics.uci.edu/dataset/352/online+retail) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 The observation period is December 1, 2010–December 9, 2011, with prices in sterling. Raw files and customer-level outputs stay outside Git. The code license has not been selected; the dataset retains its own license and attribution.
+

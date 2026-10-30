@@ -1,14 +1,13 @@
 """Test non-Spark configuration and pre-write failures without a Databricks session."""
 import contextlib
 import io
-import json
 from pathlib import Path
 import unittest
 from unittest.mock import MagicMock
 
-NOTEBOOK = Path(__file__).resolve().parents[1] / 'notebooks/01_pipeline.ipynb'
-CELLS = json.loads(NOTEBOOK.read_text())['cells']
-CODE = [''.join(c['source']) for c in CELLS if c['cell_type'] == 'code']
+NOTEBOOK = Path(__file__).resolve().parents[1] / 'notebooks/01_pipeline.py'
+CELLS = NOTEBOOK.read_text().split('# COMMAND ----------')
+CODE = [cell for cell in CELLS if not cell.lstrip().startswith('# MAGIC')]
 CONFIG = next(s for s in CODE if 'def validate_settings' in s)
 INGEST = next(s for s in CODE if 'input_rows = raw.count()' in s)
 
@@ -65,3 +64,4 @@ class PreflightTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

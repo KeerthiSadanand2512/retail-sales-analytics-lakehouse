@@ -20,10 +20,11 @@ The [export record](../reports/notebook-export-evidence.json) preserves the orig
 - Four workbook-conversion tests cover CSV quoting, date formatting, blanks, duplicates, sample limits, and overwrite protection.
 - Seven notebook preflight tests cover configuration, allowed table names, refresh opt-in, shared-function availability, and empty input before writes.
 
-The preflight tests mock Spark access. They test failure handling, not Delta persistence or Spark SQL. The source and Jupyter notebook formats have also been checked for matching cells, Python syntax, and cleared outputs.
+The preflight tests mock Spark access. They test failure handling, not Delta persistence or Spark SQL. The Python notebook was checked against the earlier Jupyter version before the duplicate was removed. All code and Markdown cells were preserved. Preflight tests now read the Python source directly.
 
 ## Remaining check
 
 The current notebook includes configuration and query cleanup made after the successful run. It has not yet been rerun in Databricks. Run the smoke checks, sample, full input, repeat refresh, and SQL cross-check again before recording runtime validation for that revision.
 
 The earlier export records Databricks environment version 6. Exact Python/Spark versions and the Git revision of that run were not captured. Use the [run-record template](../reports/databricks-run-template.md) for the next run.
+

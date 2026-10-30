@@ -33,7 +33,7 @@ Use the actual catalog name. The path must point to a file in a volume you can r
 
 ## 4. Import and test the notebooks
 
-Import `00_transformations.py`, `02_smoke_checks.py`, and either `01_pipeline.py` or `01_pipeline.ipynb` into the same workspace folder so relative `%run` resolves. Do not import both pipeline formats under the same name. Attach available serverless notebook compute. Published chart exports are separate; recreate notebook chart settings after importing the cleaned notebook.
+Import `00_transformations.py`, `02_smoke_checks.py`, and `01_pipeline.py` into the same workspace folder so relative `%run` resolves. `01_pipeline.py` is the single pipeline notebook and contains all ingestion, validation, and analysis cells. Attach available serverless notebook compute. Published chart exports are separate; recreate notebook chart settings after importing the cleaned notebook.
 
 Run `02_smoke_checks` first. Its printed pass message is required before running real data. It does not create tables. Record failures before changing quality rules.
 
@@ -48,5 +48,6 @@ Confirm the printed row counts and checks, then fill in `reports/databricks-run-
 ## 6. Explore with SQL
 
 Open `sql/sales_analysis.sql` in the SQL editor, select your catalog and `retail_learning` schema, and run each statement. If SQL compute is unavailable under current quotas, wait. Record observed results and limitations before writing business findings. Do not publish raw customer IDs or customer-level exports.
+
 
 
