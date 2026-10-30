@@ -1,3 +1,5 @@
-# Shared transformation source
+# Shared code
 
-The first implementation keeps shared PySpark functions in `../notebooks/00_transformations.py` so the beginner workflow can use relative `%run` without package installation. Both execution and synthetic checks use these same functions. A Python package can be introduced later when the notebook workflow is validated.
+The PySpark cleaning and aggregation functions are in [00_transformations.py](../notebooks/00_transformations.py). Both the pipeline and smoke checks load them through relative `%run`, so no package installation is needed inside Databricks.
+
+This folder is reserved for a future packaged version. No separate application code is stored here yet.

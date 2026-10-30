@@ -1,18 +1,26 @@
-# First batch architecture
+# Pipeline architecture
 
-Implementation prepared; Databricks execution pending.
+The pipeline runs as a manual batch in Databricks Free Edition. The source workbook is converted locally to CSV and uploaded to a Unity Catalog volume. PySpark then writes six managed Delta tables in a dedicated schema.
 
-The local converter reads the UCI workbook and writes an immutable CSV. Upload this file to a Unity Catalog volume. The notebook uses the workspace's existing catalog, a dedicated `retail_` schema, and serverless compute.
-
-| Managed Delta table | Grain |
+| Table | One row represents |
 | --- | --- |
-| retail_bronze | One original input row, plus ingestion metadata |
-| retail_silver | One source row, typed analytical fields and quality reasons |
-| retail_rejects | Ineligible subset of Silver |
-| retail_gold_daily | Date and currency |
-| retail_gold_product | Product ID and currency |
-| retail_gold_customer | Nonmissing customer ID and currency, positive sale lines only |
+| `retail_bronze` | An input line with ingestion metadata |
+| `retail_silver` | An input line with typed fields and quality flags |
+| `retail_rejects` | An ineligible Silver line and its rejection reasons |
+| `retail_gold_daily` | A date and currency |
+| `retail_gold_product` | A product code and currency |
+| `retail_gold_customer` | An identified customer and currency, using positive sale lines |
 
-`00_transformations` defines reusable cleaning/aggregation functions. Both the pipeline and synthetic smoke checks import it with `%run`. `01_pipeline` enforces explicit full-refresh opt-in, writes six Delta tables, checks Bronze/Silver/reject row accounting, and reconciles daily/product totals to eligible Silver.
+## Processing order
 
-Each write replaces one table. This is a single-user learning workflow, not an atomic multi-table refresh or production orchestration system. Re-run the entire notebook if interrupted and never run concurrent refreshes. Same-input rerun behavior still needs workspace evidence. Incremental MERGE, streaming, production security, and scalability claims are out of scope.
+`00_transformations` holds the cleaning and aggregation functions shared by the pipeline and smoke checks. `01_pipeline` validates its configuration, checks the input, writes Bronze, builds Silver and Gold, and reconciles the results. SQL cells then calculate sales, repeat purchasing, and customer-ID coverage.
+
+Bronze preserves the source. Silver retains both eligible and ineligible rows; `retail_rejects` is a convenient copy of the ineligible subset. Rejected rows must not be added to Silver counts as if they were extra input records.
+
+## Refresh behavior
+
+Each run replaces the six named tables. Full refresh is disabled by default, and the input is checked before Bronze is replaced. The file must remain unchanged during the run.
+
+The tables are written separately, so a failed run can leave tables from different refreshes. Run one refresh at a time and rerun the entire pipeline after a failure. Incremental loading and scheduled orchestration are future work.
+
+See [validation](validation.md) for completed checks and the remaining rerun of the latest notebook revision.

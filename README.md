@@ -1,60 +1,75 @@
 # Retail Sales Analytics Lakehouse
 
-A Data Engineering + Analytics learning project using **Databricks Free Edition, PySpark, Delta Lake, and SQL**.
+A retail data pipeline and sales analysis built with **Databricks Free Edition, PySpark, Delta Lake, and SQL**.
 
-**Status: guided Databricks sample and full-data runs validated from user-supplied outputs.** Full-data row accounting, daily/product financial reconciliation, repeated-run counts/totals, and independent SQL totals passed in the reported workspace results. Four local conversion tests also passed. The executed notebook export has now been reviewed. Its metadata records Databricks environment version 6; exact Python and Spark versions remain unrecorded for that historical run. The cleaned notebook requires a fresh workspace run. This is a learning project, with no production experience claimed.
+I built this project to work through both sides of an analytics problem: preparing reliable tables and explaining what the numbers actually mean. It uses the UCI Online Retail dataset, with 541,909 transaction lines from a UK retailer, to examine sales, product performance, and repeat purchasing.
 
-See [validated findings](reports/findings.md) for results and limitations and [chart export instructions](reports/chart-export.md) for saved visual artifacts.
+[Read the analysis](reports/findings.md) · [Explore the pipeline](notebooks/01_pipeline.ipynb) · [Run the project](docs/setup.md)
 
-## Dataset
+## Results at a glance
 
-[UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail), by Daqing Chen (2015), DOI [10.24432/C5BW33](https://doi.org/10.24432/C5BW33). UCI describes 541,909 retail transaction lines from December 1, 2010 through December 9, 2011, with prices in sterling. License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). These source facts are not pipeline findings.
+| Measure | Full dataset |
+| --- | ---: |
+| Lines included in sales analysis | 539,392 |
+| Lines excluded for zero or negative prices | 2,517 |
+| Net recorded sales | £9,769,872.054 |
+| Distinct sale orders | 19,960 |
+| Identified purchasing customers | 4,338 |
+| Identified customers with two or more sale orders | 65.58% |
 
-The conversion preserves records and duplicates, formats timestamps as ISO text, and writes UTF-8 CSV. Raw data and customer-level outputs are excluded from Git. See [source contract](docs/data-contract.md).
+These results come from the completed Databricks run. A second run returned the same row counts and net-sales total, and SQL checks matched the pipeline totals. The latest notebook cleanup has passed local tests but still needs a new Databricks run; see [validation](docs/validation.md).
 
-## Start in Databricks
+## What the analysis showed
 
-Follow [the step-by-step setup](docs/setup.md). Import either `notebooks/01_pipeline.py` or `notebooks/01_pipeline.ipynb` for the pipeline, alongside the shared and smoke-check notebooks. The two pipeline formats contain the same cells. See the [export review](reports/notebook-review.md) for changes and validation limits. Import the three Python source notebooks together into the same workspace folder, then run:
+- **November 2011 had the highest net sales**, at £1,461,756.25. December 2011 ends on the ninth, so comparing its total with a full month would be misleading.
+- **Postage appeared among the top sales codes.** I checked the descriptions and separated `DOT` and `POST` from the merchandise ranking. REGENCY CAKESTAND 3 TIER was the leading merchandise code at £164,762.19.
+- **Customer coverage matters.** Of the eligible lines, 24.58% had no customer ID. They contribute to sales totals but cannot be used to measure repeat purchasing.
 
-1. `02_smoke_checks` — invented edge cases, no persistent tables.
-2. `01_pipeline` — edit the configuration constants for catalog, dedicated schema, and uploaded CSV path; set `ALLOW_FULL_REFRESH = True` only after reviewing the six target tables.
-3. `sql/sales_analysis.sql` — select the same catalog/schema in the SQL editor.
+### Monthly net sales
 
-`00_transformations` supplies shared functions via `%run`. The guided workspace run passed synthetic checks and sample/full-data reconciliation; exact repository-version reproduction remains pending. Begin with the 10,000-row learning sample before the full dataset. The first rows are not representative of the whole observation period.
+![Monthly net sales in GBP](reports/figures/monthly_net_sales.png)
 
-## Workflow
+Values are net sales in GBP, despite the exported chart's “Total Sales” axis label. December 2011 covers December 1–9 only.
+
+### Top merchandise codes
+
+![Top ten merchandise codes by net sales in GBP](reports/figures/top_merchandise_net_sales.png)
+
+The ranking excludes `DOT` and `POST`. Product codes are used because descriptions sometimes vary within a code. All ten displayed codes were checked against their source descriptions.
+
+## How it works
 
 ```text
-UCI XLSX -> local CSV conversion -> uploaded CSV in Unity Catalog volume
-       -> Bronze Delta -> Silver Delta + rejects -> Gold Delta -> SQL analytics
+UCI workbook → CSV → Bronze Delta → Silver Delta → Gold Delta → SQL analysis
+                                         └────→ Rejected rows
 ```
 
-The pipeline creates or replaces six project tables in a dedicated schema: `retail_bronze`, `retail_silver`, `retail_rejects`, `retail_gold_daily`, `retail_gold_product`, and `retail_gold_customer`. It checks row accounting and daily/product financial reconciliation. It preserves duplicate-looking lines because the source does not supply a reliable unique line key. Tables refresh individually; this is not an atomic multi-table transaction. Run one refresh at a time.
+Bronze keeps the input rows and ingestion metadata. Silver adds typed fields and quality flags. Gold provides daily, product, and customer summaries. Rows with missing customer IDs remain eligible for sales; zero and negative prices are kept for review but excluded from the monetary metrics.
 
-## Business questions
+I retained duplicate-looking lines because invoice and product codes do not establish a unique transaction-line key. Monetary calculations use decimals. Negative quantities are treated as recorded adjustments, not confirmed cash refunds. Costs are absent, so this project does not calculate profit.
 
-- How do monthly recorded sales, returns, and sale-order counts change?
-- Which products contribute the most recorded sales?
-- What proportion of identified purchasing customers place repeat orders?
-- How do invalid values and missing customer IDs affect metric coverage?
+## Run it
 
-Profit and margin are out of scope because product costs are absent. Cancellation/negative-line values are reported as source-recorded adjustments, not proof of completed refunds. December 2010 and December 2011 have unequal coverage.
+1. Convert the workbook with [scripts/prepare_data.py](scripts/prepare_data.py).
+2. Upload the CSV to a Unity Catalog volume.
+3. Import the shared functions, smoke checks, and one pipeline format into the same Databricks folder.
+4. Run the smoke checks, configure the pipeline, then enable the full refresh and run it.
 
-## Project files
+The [setup guide](docs/setup.md) covers the commands, paths, and table names. Each refresh replaces six project tables, one at a time; use a dedicated schema and rerun the whole notebook after an interruption.
+
+## Repository guide
 
 | Folder | Contents |
 | --- | --- |
-| `scripts/` | Deterministic workbook-to-CSV conversion |
-| `notebooks/` | Shared PySpark logic, batch pipeline, synthetic checks |
-| `sql/` | Monthly sales, product contribution, repeat purchasing, coverage queries |
-| `tests/` | Local converter unit tests |
-| `docs/` | Setup, architecture, contract, metrics, roadmap, validation |
-| `reports/` | Local preparation evidence and Databricks run-log template |
-| `data/` | Instructions; source files remain outside Git |
+| [notebooks](notebooks/) | PySpark pipeline, shared transformations, and smoke checks |
+| [sql](sql/) | Sales and customer analysis |
+| [reports](reports/) | Findings, charts, and execution records |
+| [docs](docs/) | Setup, architecture, data rules, and validation |
+| [tests](tests/) | Workbook conversion and notebook preflight tests |
+| [scripts](scripts/) | Workbook-to-CSV conversion |
 
-## Zero-cost learning scope
+## Dataset
 
-Use [Databricks Free Edition](https://docs.databricks.com/aws/en/getting-started/free-edition), available serverless resources, manual upload, and small batches. No external paid cloud services are required. Free Edition has [usage and feature limits](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations); wait if quotas are exhausted. Documentation checked October 21, 2026.
+Chen, D. (2015). [Online Retail](https://doi.org/10.24432/C5BW33). UCI Machine Learning Repository. [Source page](https://archive.ics.uci.edu/dataset/352/online+retail) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-See [validation evidence](reports/preparation.md), [metric rules](docs/metrics.md), and [roadmap](docs/roadmap.md). No new software license is applied by this update; the source dataset retains its own attribution requirements.
-
+The observation period is December 1, 2010–December 9, 2011, with prices in sterling. Raw files and customer-level outputs stay outside Git. The code license has not been selected; the dataset retains its own license and attribution.

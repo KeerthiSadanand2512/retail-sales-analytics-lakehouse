@@ -1,8 +1,15 @@
 # Databricks notebooks
 
-Import `00_transformations.py`, `02_smoke_checks.py`, and one pipeline format into the same folder. Choose either `01_pipeline.py` (Databricks source) or `01_pipeline.ipynb` (Jupyter), which contain the same cells; do not create two copies named 01_pipeline.
+Keep these notebooks in the same workspace folder:
 
-Run the smoke checks first. In the pipeline, edit the configuration constants and inspect the six target names, then enable `ALLOW_FULL_REFRESH` explicitly. Defaults point to the learning sample and disable writes. Run all cells sequentially so shared functions and SQL catalog/schema context are established.
+| Notebook | Purpose |
+| --- | --- |
+| `00_transformations.py` | Shared cleaning and aggregation functions |
+| `02_smoke_checks.py` | Synthetic edge cases; run before loading the source |
+| `01_pipeline.py` or `01_pipeline.ipynb` | Ingestion, Delta tables, reconciliation, and SQL analysis |
 
-The original export recorded passing full-data results. This reviewed revision is output-free and needs a new Databricks run. See [review](../reports/notebook-review.md), [original aggregate evidence](../reports/notebook-export-evidence.json), and [setup](../docs/setup.md). Recreate chart settings after importing; previous PNG exports are retained separately.
+The two pipeline formats contain the same cells. Import one, not both under the same name.
 
+Edit the pipeline's configuration constants, review the six target tables, and set `ALLOW_FULL_REFRESH = True` when ready. Defaults use the sample file and disable writes. Run from the beginning so shared functions and SQL context are established.
+
+The original full-data run passed reconciliation. The current cleaned revision needs a fresh run; see [validation](../docs/validation.md). Chart settings must be recreated after import; saved images are in [reports/figures](../reports/figures/).

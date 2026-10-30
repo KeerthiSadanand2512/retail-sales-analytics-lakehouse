@@ -1,10 +1,12 @@
 # Tests
 
-Local converter checks:
+From the repository root:
 
 ```bash
 python -m pip install -r requirements-preparation.txt
 python -m unittest discover -s tests -v
 ```
 
-Four tests passed during preparation on October 21, 2026. PySpark edge-case checks live in `../notebooks/02_smoke_checks.py` and must run in Databricks before real input. Delta persistence and same-input reruns require the workspace acceptance checks in `../docs/validation.md`.
+There are eleven local tests: four for workbook conversion and seven for notebook preflight checks. The latter use mocked Spark access to check failure handling before writes.
+
+Run [02_smoke_checks](../notebooks/02_smoke_checks.py) in Databricks for the PySpark edge cases. Delta writes, reconciliation, and repeat-run behavior are covered by the [workspace validation steps](../docs/validation.md).

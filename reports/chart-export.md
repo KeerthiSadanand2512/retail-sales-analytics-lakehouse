@@ -1,10 +1,10 @@
-# Saved Databricks chart exports
+# Chart notes
 
-The user supplied these actual Databricks PNG exports on October 29, 2026:
+The Databricks charts were exported on October 29, 2026 and are stored unchanged:
 
 - [Monthly net sales](figures/monthly_net_sales.png)
-- [Top ten reviewed merchandise codes](figures/top_merchandise_net_sales.png)
+- [Top ten merchandise codes](figures/top_merchandise_net_sales.png)
 
-The images are stored unchanged. [The findings report](findings.md#databricks-chart-exports) provides headings, GBP units, the December 2011 partial-month caveat, and postage exclusions. The monthly chart axis says Total Sales, but the plotted values are net recorded sales. Future re-exports should label it Net Sales (GBP).
+Both show GBP values. The monthly chart's axis currently says “Total Sales,” but the plotted measure is net sales. December 2011 covers December 1–9 only. The merchandise chart excludes `DOT` and `POST` and groups by product code because descriptions can vary.
 
-The exact executed notebook source, runtime version, and run revision are still outstanding. Export the modified notebook in source format and review outputs for credentials or customer-level data before publication.
+The [findings report](findings.md#charts) places the images beside these explanations. The next chart export should label the monthly measure “Net Sales (GBP).”
