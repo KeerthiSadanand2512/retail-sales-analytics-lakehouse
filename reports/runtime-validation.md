@@ -15,4 +15,4 @@ The following outputs were reported from the updated `01_pipeline.py` in Databri
 
 The counts and net sales match the earlier full-data run. The latest run's exact timestamp, executed Git revision, and uploaded-file checksum were not independently captured. Runtime versions come from the notebook's printed output.
 
-A second execution and independent SQL outputs for this updated revision have not yet been recorded. The earlier repeated full-data run and SQL checks are described in [validation](../docs/validation.md).
+A second execution of the updated Python notebook returned the same 541,909 input rows, 539,392 accepted rows, 2,517 rejected rows, and GBP 9,769,872.054000 net sales. Row accounting and daily/product reconciliation passed again. This confirms repeatability of the recorded counts and totals; it does not compare every stored row. Independent SQL outputs for this updated revision have not yet been recorded. The earlier repeated full-data run and SQL checks are described in [validation](../docs/validation.md).
