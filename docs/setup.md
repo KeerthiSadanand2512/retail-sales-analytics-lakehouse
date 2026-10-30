@@ -1,10 +1,10 @@
 # First Databricks run
 
-Status: guided sample and full-data runs passed the reported checks. The exported working notebook has been reviewed; the cleaned revision needs a new workspace run.
+The original sample and full-data runs passed reconciliation. The current notebook includes later cleanup and needs a fresh run; see [validation](validation.md).
 
 ## 1. Create your free workspace
 
-Open [Databricks Free Edition](https://www.databricks.com/learn/free-edition), follow signup, and select Free Edition rather than a paid trial. Complete sign-in yourself. No paid cloud account or classic cluster is needed. Free Edition is serverless-only and quota-limited; see [current limitations](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations).
+Open [Databricks Free Edition](https://www.databricks.com/learn/free-edition), follow signup, and select Free Edition rather than a paid trial. No paid cloud account or classic cluster is needed. Free Edition is serverless-only and quota-limited; see [current limitations](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations).
 
 ## 2. Prepare the CSV
 
@@ -29,7 +29,7 @@ In the workspace Catalog area, find an existing catalog you can use. Create a de
 /Volumes/<your_catalog>/retail_learning/retail_input/online_retail_sample.csv
 ```
 
-Use the actual catalog name. Do not paste the example placeholders into the notebook. If volume creation is unavailable, stop and record the exact message rather than switching to paid infrastructure.
+Use the actual catalog name. The path must point to a file in a volume you can read.
 
 ## 4. Import and test the notebooks
 
@@ -43,9 +43,10 @@ Open `01_pipeline` and edit the configuration constants: `CATALOG`, `SCHEMA`, `I
 
 The notebook overwrites the project's six named tables, preserving source rows in Bronze and all typed rows in Silver, with rejected rows copied to `retail_rejects`. Do not run simultaneous refreshes. If interrupted, rerun the whole notebook; tables are not committed together.
 
-Confirm the printed row counts and checks, then fill in `reports/databricks-run-template.md`. Run again with the same immutable input and compare counts and net totals to check rerun behavior. The earlier guided full-data run repeated successfully; repeat these checks again for the cleaned notebook. Record the new notebook's printed Python/Spark versions and actual Git revision, not just the original export's environment version.
+Confirm the printed row counts and checks, then fill in `reports/databricks-run-template.md`. Run again with the same immutable input and compare counts and net totals to check rerun behavior. The earlier full-data run repeated successfully; repeat these checks for the current revision. Record the printed Python/Spark versions and Git revision for the new run.
 
 ## 6. Explore with SQL
 
 Open `sql/sales_analysis.sql` in the SQL editor, select your catalog and `retail_learning` schema, and run each statement. If SQL compute is unavailable under current quotas, wait. Record observed results and limitations before writing business findings. Do not publish raw customer IDs or customer-level exports.
+
 

@@ -4,7 +4,7 @@
 
 Chen, D. (2015). Online Retail [Dataset]. UCI Machine Learning Repository. [DOI](https://doi.org/10.24432/C5BW33). [Dataset page](https://archive.ics.uci.edu/dataset/352/online+retail). [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-Downloaded October 21, 2026. Original workbook checksum: `43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d`. UCI describes 541,909 lines, December 1, 2010–December 9, 2011. Prices are sterling (GBP); country is the recorded customer country. Timezone is not supplied; use naive local timestamps (`TIMESTAMP_NTZ`) and do not invent UTC conversion.
+Downloaded October 21, 2026. Original workbook checksum: `43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d`. UCI describes 541,909 lines, December 1, 2010–December 9, 2011. Prices are sterling (GBP); country is the recorded customer country. Timezone is not supplied; use naive local timestamps (`TIMESTAMP_NTZ`) without applying a UTC conversion.
 
 ## Field mapping
 
@@ -23,4 +23,5 @@ Bronze retains source values plus filename, ingestion time, and input path. Silv
 
 No deduplication: invoice/product alone is not a proven line key. Identical lines can be counted separately; quantify their impact before any future policy change. Zero and negative prices are retained in Silver but excluded from current monetary metrics. Product codes may include postage/charges; review code semantics before calling rankings merchandise demand.
 
-Raw data and customer-level outputs are not committed. Public dataset identifiers do not justify publishing customer-level analysis. The conversion changes representation, not business records. Results are historical and do not measure profit or causal impact.
+Raw data and customer-level outputs are not committed. The conversion changes representation, not business records. Results are historical and do not measure profit or causal impact.
+

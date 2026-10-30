@@ -1,16 +1,24 @@
-# Roadmap
+# Project progress
 
-- [x] Create documentation scaffold and repository structure.
-- [x] Select UCI Online Retail and document attribution, currency, and coverage.
-- [x] Convert source data locally; prepare a 10,000-row learning sample.
-- [x] Pass four local conversion tests.
-- [x] Write shared PySpark rules, Delta full-refresh notebook, synthetic checks, and SQL analyses.
-- [ ] Create Free Edition workspace and upload sample.
-- [ ] Run synthetic Spark checks in Databricks.
-- [ ] Run sample pipeline and validate Delta outputs.
-- [ ] Run identical input twice; record unchanged business counts and totals.
-- [ ] Run full input and record quality/financial reconciliation.
-- [ ] Publish reconciled findings, figures, and limitations.
-- [ ] Build a dashboard after metric review.
+## Completed
 
-Prepared implementation is not runtime evidence. Incremental processing and scheduling are optional future milestones.
+- Selected UCI Online Retail and recorded its source, license, and field definitions.
+- Converted the workbook to CSV and prepared a 10,000-row sample.
+- Built the Bronze, Silver, rejects, and Gold Delta tables.
+- Ran the synthetic checks and the sample pipeline in Databricks.
+- Processed all 541,909 source lines and reconciled the sales totals.
+- Repeated the full-data run with unchanged row counts and net sales.
+- Cross-checked the totals and monthly order counts with SQL.
+- Checked the descriptions of the top merchandise codes and separated postage.
+- Published the findings and two chart exports.
+- Added local conversion and notebook preflight tests.
+
+## Next
+
+- Run the latest cleaned notebook in Databricks and capture its Python/Spark versions and Git revision.
+- Update the monthly chart axis from “Total Sales” to “Net Sales (GBP).”
+- Build a dashboard from the validated metrics.
+
+## Later
+
+Consider incremental loading after establishing a reliable line key, followed by scheduling within Free Edition limits. These features are not implemented yet.

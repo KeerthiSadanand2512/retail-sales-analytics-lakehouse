@@ -4,11 +4,11 @@
 # MAGIC %md
 # MAGIC # Retail Sales Analytics Lakehouse
 # MAGIC
-# MAGIC Reviewed learning notebook for Databricks Free Edition. Run `02_smoke_checks` first and keep `00_transformations` in this notebook's folder. Import **either** the `.py` or `.ipynb` version, not both under the same name.
+# MAGIC This notebook loads UCI retail transactions into Delta tables, checks the totals, and explores sales and repeat purchasing. Run `02_smoke_checks` first and keep `00_transformations` in the same folder.
 # MAGIC
-# MAGIC The supplied export recorded 541,909 input rows, 539,392 eligible rows, 2,517 rejected rows and GBP 9,769,872.054 net sales. Those are historical run evidence, not outputs of this revised notebook. Revisions have been checked locally but require a fresh Databricks run.
+# MAGIC The earlier full-data run returned 539,392 eligible lines and GBP 9,769,872.054 net sales. This revision includes later setup and query cleanup and still needs a fresh Databricks run. The earlier results are recorded in `reports/notebook-export-evidence.json`.
 # MAGIC
-# MAGIC This notebook replaces six project tables when full refresh is enabled. Use a dedicated schema and run only one refresh at a time. Writes are separate transactions; rerun the full pipeline after an interruption.
+# MAGIC Full refresh replaces six project tables, one at a time. Use a dedicated schema, run one refresh at a time, and rerun from the beginning after a failure.
 
 # COMMAND ----------
 # MAGIC %run ./00_transformations
@@ -17,7 +17,7 @@
 # MAGIC %md
 # MAGIC ## Configuration
 # MAGIC
-# MAGIC Set `INPUT_PATH` to the exact uploaded CSV. Start with the sample. Set `ALLOW_FULL_REFRESH = True` only after reviewing the six target names. No widgets are required. SQL analysis uses the catalog/schema selected by the ingestion cell.
+# MAGIC Set the catalog, schema, and exact uploaded CSV path below. Start with the sample. Review the six target names before setting `ALLOW_FULL_REFRESH = True`. Later SQL cells use the catalog/schema selected during ingestion.
 
 # COMMAND ----------
 import re
@@ -61,7 +61,7 @@ print("Full refresh enabled:", ALLOW_FULL_REFRESH)
 # MAGIC %md
 # MAGIC ## Bronze ingestion
 # MAGIC
-# MAGIC Validate the input before replacing a table. The preflight count adds one CSV read. Keep the uploaded file unchanged during the run.
+# MAGIC Check the source columns and row count before replacing Bronze. The row-count check adds a CSV read, so keep the input file unchanged during the run.
 
 # COMMAND ----------
 if ALLOW_FULL_REFRESH is not True:
@@ -93,9 +93,9 @@ if bronze.count() != input_rows:
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Silver, rejected rows, and Gold tables
+# MAGIC ## Silver and Gold tables
 # MAGIC
-# MAGIC Quality and metric rules are unchanged from the shared transformations. Duplicate-looking lines are preserved. Missing customer IDs do not exclude otherwise eligible sales.
+# MAGIC Silver keeps every source row with typed fields and quality flags. Missing customer IDs do not exclude otherwise eligible sales. Duplicate-looking rows remain because the source has no established unique line key.
 
 # COMMAND ----------
 silver = clean_retail(bronze)
@@ -110,7 +110,7 @@ for name, frame in models.items():
 # MAGIC %md
 # MAGIC ## Reconciliation
 # MAGIC
-# MAGIC Require source row accounting and eligible Silver totals to agree with the daily and product Gold totals.
+# MAGIC Check that input lines equal eligible plus rejected lines, and that daily and product net sales match eligible Silver.
 
 # COMMAND ----------
 # Reconciliation is required before interpreting the Gold results.
@@ -129,9 +129,9 @@ display(spark.table(table('retail_gold_daily')).orderBy('transaction_date'))
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Runtime evidence
+# MAGIC ## Runtime details
 # MAGIC
-# MAGIC Record these values with input checksums and the repository revision in your run log. Environment version 6 came from the original export metadata; it is not a Spark version.
+# MAGIC Save the printed versions, input checksum, and Git revision with the run record. Databricks environment version 6, recorded in the earlier export, is separate from the Spark version.
 
 # COMMAND ----------
 import platform
@@ -140,9 +140,9 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Independent sales and order cross-check (GBP)
+# MAGIC ## Sales and order cross-check (GBP)
 # MAGIC
-# MAGIC Negative adjustments are not proof of refunded cash; profit is not measured. Decimal source precision is retained.
+# MAGIC Calculate totals directly from Silver. Negative adjustments reduce net sales but do not establish refunded cash. Costs are absent, so profit is not calculated.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -161,7 +161,7 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 # MAGIC %md
 # MAGIC ## Rejection reasons
 # MAGIC
-# MAGIC Rows remain in Silver and the rejects table; they are excluded from current monetary measures.
+# MAGIC Ineligible rows remain available in Silver and the rejects table for review.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -174,9 +174,9 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Repeat purchasing among identified customers
+# MAGIC ## Repeat purchasing
 # MAGIC
-# MAGIC This measures at least two sale invoices during the observed input period, not long-term retention.
+# MAGIC Count identified customers with at least two sale invoices during the observed input period. This is not a long-term retention measure.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -197,7 +197,7 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 # MAGIC %md
 # MAGIC ## Customer-ID coverage
 # MAGIC
-# MAGIC The percentage is a share of eligible lines, not customers or sales value.
+# MAGIC Measure missing IDs as a share of eligible lines, not customers or sales value.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -213,9 +213,9 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Monthly net recorded sales (GBP)
+# MAGIC ## Monthly net sales (GBP)
 # MAGIC
-# MAGIC December 2011 includes December 1–9 only. Sale orders are counted distinctly from Silver at the monthly grain, rather than summed across dates.
+# MAGIC December 2011 ends on December 9. Count monthly sale orders directly from Silver; distinct counts are not generally additive across dates.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -233,9 +233,9 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Top sales codes, including postage
+# MAGIC ## Leading sales codes
 # MAGIC
-# MAGIC Check source descriptions before interpreting codes as merchandise. Some codes have several descriptions.
+# MAGIC Include source descriptions to distinguish merchandise from postage. Some product codes have several descriptions.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -260,11 +260,11 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Top 10 reviewed merchandise codes by net sales (GBP)
+# MAGIC ## Top ten merchandise codes by net sales (GBP)
 # MAGIC
-# MAGIC Excludes identified postage codes DOT and POST. All ten codes in the original full-data ranking were checked against their source descriptions; this is not a complete classification of every dataset code. Product descriptions may vary within a code.
+# MAGIC Exclude the identified postage codes `DOT` and `POST`. All ten entries in the earlier full-data ranking were checked against their descriptions; this is not a classification of every source code.
 # MAGIC
-# MAGIC For the original full-data run, code 22423 (REGENCY CAKESTAND 3 TIER) led at GBP 164,762.19. Results may differ for the sample. Configure a horizontal bar chart with product_id as Y, net_sales as X, Group by empty, and category sorting disabled to retain descending SQL result order.
+# MAGIC Code 22423 (REGENCY CAKESTAND 3 TIER) led the full-data run at GBP 164,762.19. Sample results may differ. For the chart, use a horizontal bar with product_id as Y and net_sales as X, leave Group by empty, and disable category sorting to keep the query order.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -278,7 +278,9 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Supporting description checks
+# MAGIC ## Description variants
+# MAGIC
+# MAGIC These two codes had multiple descriptions in the top-ten ranking. Grouping by code keeps the variants together.
 
 # COMMAND ----------
 # MAGIC %sql
@@ -291,8 +293,8 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## Complete the run record
+# MAGIC ## Save the run record
 # MAGIC
-# MAGIC Save the printed summary, input SHA-256, Git revision, actual Python/Spark versions, and any failures. Rerun with the identical immutable input and compare business row counts and totals. Save aggregate chart exports only; keep credentials and customer-level records out of public outputs.
+# MAGIC Record the summary, input SHA-256, Git revision, Python/Spark versions, and any failures. Repeat the run against the same input and compare counts and totals.
 # MAGIC
-# MAGIC Charts from the earlier run are stored separately under `reports/figures/`. Recreate visualizations after importing this clean notebook; old Databricks chart metadata and outputs have been removed.
+# MAGIC Publish aggregate results only. Saved charts are in `reports/figures/`; chart settings need to be recreated after import.

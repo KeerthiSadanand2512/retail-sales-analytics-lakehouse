@@ -1,19 +1,20 @@
-# Databricks execution log
+# Run-record template
 
-Status: NOT RUN. Complete only after actual execution.
+Copy this template for a new execution. It is not a record of a completed run.
 
-- Run date/time and timezone:
+- Date, time, and timezone:
 - Git revision:
 - Databricks environment version:
+- Python and Spark versions:
 - Input filename and SHA-256:
 - Sample or full input:
-- Catalog / dedicated schema:
-- Synthetic smoke checks result:
-- Bronze rows / accepted / rejected:
-- Silver eligible net sales GBP:
-- Gold daily and product reconciliation:
-- Same-input rerun comparison:
+- Catalog and schema:
+- Synthetic-check result:
+- Input, eligible, and rejected line counts:
+- Eligible net sales in GBP:
+- Daily/product reconciliation:
+- Same-input repeat-run comparison:
 - SQL cross-check:
-- Known limitations or failures:
+- Failures or limitations:
 
-Include sanitized aggregate evidence only. Do not include credentials, private workspace links, raw customer IDs, or customer-level outputs.
+Attach aggregate results only. Omit credentials, account URLs, raw customer IDs, and customer-level outputs.

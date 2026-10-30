@@ -1,5 +1,5 @@
 {
-  "source_file": "01_pipeline.ipynb supplied by user",
+  "source_file": "01_pipeline.ipynb",
   "source_sha256": "08c27b7b0017a275b8bd37e9f0f27d88b4949612c21288c02fc41a8bfc0e1f99",
   "export_environment_version": "6",
   "recorded_summary": {
@@ -9,5 +9,5 @@
     "eligible_net_sales_GBP": "9769872.054000",
     "checks": "row accounting and daily/product totals passed"
   },
-  "status": "Evidence from original executed export. Revised notebook has not been run in Databricks."
+  "status": "Completed full-data run. Later notebook cleanup requires a separate Databricks rerun."
 }

@@ -1,23 +1,21 @@
-# Executed notebook review
+# Notebook changes
 
-The user supplied `01_pipeline.ipynb` after the guided Databricks run. The original file remains unchanged locally. Its source checksum and explicit aggregate reconciliation stream are preserved in [notebook-export-evidence.json](notebook-export-evidence.json). The notebook metadata specifies Databricks environment version **6**; it does not establish the original Python/Spark versions or the exact executed Git revision. The shared transformations notebook was referenced by relative `%run`, not embedded in the export.
+The first full-data run used fixed catalog, schema, and input-path settings after problems with the widget setup. The executed notebook was exported on October 29, 2026. Its checksum and reconciliation summary are stored in [the execution record](notebook-export-evidence.json).
 
-## Changes
+## Changes after that run
 
-- Replace widget setup with explicit constants, identifier/path validation, a six-table allowlist, and an opt-in full-refresh flag defaulting to False.
-- Check shared-function availability and input header/row count before any project table is overwritten. A second count checks Bronze against input; the file must stay immutable throughout the run.
-- Select catalog/schema once for the subsequent unqualified SQL statements, removing embedded workspace paths from queries.
-- Remove repeated sales/customer/coverage queries and redundant description-check queries.
-- Compute monthly distinct sale invoices directly from Silver instead of summing daily distinct counts.
-- Put the reviewed-merchandise caption directly above its ranking; retain separate postage and product-description checks, with partial-December and customer-coverage caveats.
-- Add runtime-version output for future run logs. Export synchronized `.py` and `.ipynb` formats.
-- Clear outputs, execution counts, command identifiers and old chart metadata. Keep only original aggregate reconciliation evidence in the separate JSON; no customer-level outputs are published. Earlier PNG chart exports remain in reports/figures.
+- Replaced widgets with validated configuration constants and a full-refresh flag that defaults to False.
+- Added a six-table allowlist and checks for shared functions, expected columns, and nonempty input before writes.
+- Selected the SQL catalog/schema once, removing fixed workspace paths from the queries.
+- Removed duplicate queries and calculated monthly distinct orders directly from Silver.
+- Moved the merchandise caption above its chart query and kept the description checks separate.
+- Added Python/Spark version output for future run records.
+- Kept matching Python and Jupyter formats, with outputs and old chart settings removed. Chart PNGs are stored separately.
 
-## Validation
+Cleaning rules, financial calculations, and Gold aggregations were not changed by this cleanup. The shared notebook is loaded through relative `%run` and was not embedded in the original export.
 
-Seven local preflight tests passed: valid settings, invalid names/nonproject schema, unsafe or malformed input paths, the table allowlist, refresh opt-in before Spark access, missing shared functions before Spark access, and empty input preventing schema/table writes. These tests use mocks for Spark access and do not validate Spark SQL or Delta execution.
+## Checks and remaining work
 
-Python cells parse after excluding notebook magics. The exported source and Jupyter versions contain the same logical cells. JSON notebook structure is checked and all outputs/execution counts are cleared. Shared cleaning and Gold aggregation rules are unchanged from the repository version inspected during review.
+Seven local preflight tests passed. Python syntax, notebook structure, cleared outputs, and matching cells between the two formats were checked. The Spark calls in these tests are mocked.
 
-**The revised notebook has not run in Databricks.** Historical validated results belong to the supplied executed export and conversation evidence. A fresh smoke check, full run, repeat run and SQL reconciliation are required before claiming runtime validation of this revision. The refresh remains a sequence of separate table transactions; partial failure requires a full rerun. This review does not establish production readiness or automated scheduling.
-
+The revised notebook still needs a Databricks run. The earlier results remain valid for the executed version, but do not establish runtime validation of later changes. Environment version 6 is recorded in the export; the earlier Python/Spark versions and Git revision are unknown.

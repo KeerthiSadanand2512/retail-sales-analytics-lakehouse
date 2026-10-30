@@ -1,58 +1,73 @@
-# Retail sales analysis — validated workspace results
+# Retail sales findings
 
-Recorded October 29, 2026 from user-supplied Databricks output and screenshots. Full input runs and SQL reconciliation were reported October 28; product chart configuration and description checks were reviewed October 29. This is a historical learning project, not production or employment data.
+This analysis covers 541,909 transaction lines from UCI Online Retail, dated December 1, 2010–December 9, 2011. The aim was to understand sales trends, identify leading merchandise codes, and measure repeat purchasing while accounting for cancellations and missing customer IDs.
 
-## Results
+## Overall sales
 
-| Metric | Full dataset result |
+| Measure | Full dataset |
 | --- | ---: |
-| Input transaction lines | 541,909 |
+| Input lines | 541,909 |
 | Eligible lines | 539,392 |
-| Ineligible lines | 2,517 |
+| Lines excluded for nonpositive prices | 2,517 |
 | Gross positive sales (GBP) | 10,666,684.544 |
-| Negative adjustment value (GBP) | 896,812.490 |
+| Negative adjustments (GBP) | 896,812.490 |
 | Net recorded sales (GBP) | 9,769,872.054 |
-| Distinct positive sale invoices | 19,960 |
+| Distinct sale orders | 19,960 |
+
+The 2,517 excluded lines remain in Silver and the rejects table. They have zero or negative unit prices, so the current analysis does not include them in monetary measures. Negative quantities on otherwise eligible lines reduce net sales; they are recorded adjustments rather than verified cash refunds.
+
+Values retain the source's decimal precision. Rounded labels in the charts are for display only. Without cost data, these figures cannot be used to calculate profit.
+
+## Sales peaked in November
+
+November 2011 recorded £1,461,756.25 in net sales and 2,769 sale orders, the highest monthly totals in the period. Net sales increased from September through November.
+
+December 2011 covers only the first nine days. Its lower total should not be described as a full-month sales decline. One historical period also provides too little evidence to establish recurring seasonality.
+
+## Postage changes the product ranking
+
+`DOT` (DOTCOM POSTAGE) recorded £206,245.48 in net sales, and `POST` (POSTAGE) recorded £66,230.64. Both contribute to overall sales but are shown separately from merchandise.
+
+After excluding those codes, REGENCY CAKESTAND 3 TIER (`22423`) led the merchandise ranking at £164,762.19. PARTY BUNTING (`47566`) followed at £98,302.98, then code `85123A` at £97,894.50.
+
+I checked the source descriptions for all ten codes in the chart. Some had more than one description: `85123A` included cream and white hanging heart T-light holders, while `22502` had differing wicker picnic-basket descriptions. The analysis therefore groups by product code rather than treating each description as a separate item. This check covers the displayed top ten, not every code in the dataset.
+
+## Repeat purchasing and missing IDs
+
+| Measure | Result |
+| --- | ---: |
 | Identified purchasing customers | 4,338 |
-| Customers with at least two qualifying sale invoices | 2,845 |
-| Repeat-purchasing share among identified purchasing customers | 65.58% |
-| Eligible lines without a customer ID | 132,603 (24.58%) |
+| Customers with at least two sale orders | 2,845 |
+| Repeat-purchasing share | 65.58% |
+| Eligible lines without customer IDs | 132,603 |
+| Share of eligible lines without customer IDs | 24.58% |
 
-Decimal values retain source precision. Two-decimal chart labels are display rounding, not a change to stored totals. All 2,517 ineligible rows have the quality reason `nonpositive_price`. They remain in Silver and in the rejects table; they are excluded from monetary metrics rather than deleted.
+The repeat-purchasing percentage applies to identified customers within the observation window. It is not a long-term retention rate. Missing IDs limit how much customer behavior can be measured, even though those lines still contribute to sales totals.
 
-## Findings and implications
+## Charts
 
-**November 2011 is the peak observed month**, with GBP 1,461,756.25 in net sales and 2,769 sale orders. Net sales rise from September through November. December 2011 includes only December 1–9 and must not be presented as a comparable full-month decline. This single historical period does not establish recurring seasonality or predict future demand.
+### Monthly net sales (GBP)
 
-**Postage must be distinguished from merchandise.** DOTCOM POSTAGE (`DOT`) has GBP 206,245.48 net sales; POSTAGE (`POST`) has GBP 66,230.64. They are included in the overall monetary totals but excluded from the merchandise ranking. The remaining top ten codes were checked against source descriptions. This is a reviewed top-ten selection, not a validated classification of every code in the dataset.
+![Monthly net sales in GBP](figures/monthly_net_sales.png)
 
-**REGENCY CAKESTAND 3 TIER (`22423`) leads the reviewed merchandise ranking**, with GBP 164,762.19 net sales. PARTY BUNTING (`47566`) follows with GBP 98,302.98, and code `85123A` has GBP 97,894.50. Product codes, rather than descriptions, define the grouping because some codes have multiple descriptions. Description variants do not prove distinct products or reliable size-level identity.
+The exported axis says “Total Sales,” but the plotted values are net sales. December 2011 includes December 1–9 only.
 
-**Repeat purchasing is common among identified purchasers**, with 2,845 of 4,338 making at least two qualifying sale purchases (65.58%). This measures purchasing within the observation window, not long-term retention. Missing IDs on 24.58% of eligible lines limit customer-level coverage; the customer percentage cannot be generalized to unidentified purchasers.
+### Top ten merchandise codes by net sales (GBP)
 
-## Validation and limitations
+![Top ten merchandise codes by net sales in GBP](figures/top_merchandise_net_sales.png)
 
-The full notebook was run twice with unchanged reported input/eligible/reject counts and net totals. Row accounting and daily/product reconciliation passed in both reported outputs. Independent SQL from Silver reproduced gross sales, negative adjustments, net sales, and sale-order counts. Direct monthly distinct-invoice counts matched the daily-table rollup for this dataset; distinct counts are not generally additive.
+Excludes `DOT` and `POST`. Codes are sorted by net sales, with one color to keep attention on the ranking. Descriptions were checked before labeling these entries as merchandise.
 
-Duplicate-looking source lines were preserved because a reliable unique line key was not established. Positive prices and nonzero quantities determine current eligibility; negative quantities are source-recorded adjustments, not verified refunded cash. Profit, margin, causal improvements, production scalability, and forecasts are not measured.
+## Checks and limits
 
-The workspace setup was edited during troubleshooting to use fixed catalog/schema/path variables after widget issues. The executed notebook export has now been reviewed and its original aggregate reconciliation stream and checksum preserved in [notebook-export-evidence.json](notebook-export-evidence.json). Metadata identifies Databricks environment version 6; exact historical Python/Spark versions and run revision remain unrecorded. The cleaned notebook must be rerun before claiming its runtime validation. See [the review](notebook-review.md). Databricks chart image exports are included below. The exported images omit the notebook headings, so the captions supply currency, scope, and coverage notes.
+The full-data notebook ran twice with unchanged row counts and net sales. Daily and product Gold totals reconciled to eligible Silver, and separate SQL queries reproduced the sales and order totals. Monthly distinct orders were checked directly from Silver rather than assuming daily distinct counts were additive.
 
-## Source and attribution
+Duplicate-looking source lines were retained because invoice and product codes do not establish a unique line key. The analysis describes recorded historical transactions; it does not demonstrate causal business improvements or predict future sales.
 
-Chen, D. (2015). [Online Retail](https://doi.org/10.24432/C5BW33). UCI Machine Learning Repository. [Dataset](https://archive.ics.uci.edu/dataset/352/online+retail), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). This project converts the source workbook to CSV, applies documented eligibility rules, and aggregates the results. No raw customer-level data is published here.
+The exported notebook summary and checksum are in [the execution record](notebook-export-evidence.json). Its metadata records Databricks environment version 6, but the exact Python/Spark versions and Git revision of that run were not captured. The latest notebook cleanup has local checks and still needs a fresh Databricks run. See [validation](../docs/validation.md).
 
-## Databricks chart exports
+## Data source
 
-### Monthly net recorded sales (GBP)
+Chen, D. (2015). [Online Retail](https://doi.org/10.24432/C5BW33). UCI Machine Learning Repository. [Source page](https://archive.ics.uci.edu/dataset/352/online+retail) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-![Monthly net recorded sales in GBP, December 2010 to December 2011](figures/monthly_net_sales.png)
-
-The exported axis says “Total Sales”; plotted values are **net recorded sales in GBP**, reconciled to the SQL results above. December 2011 covers December 1–9 only and is not comparable with full months. November 2011 is the peak at GBP 1,461,756.25.
-
-### Top ten reviewed merchandise codes by net sales (GBP)
-
-![Top ten reviewed merchandise codes by net sales in GBP](figures/top_merchandise_net_sales.png)
-
-Excludes the identified postage codes DOT and POST; all ten displayed codes were checked against source descriptions. Code 22423 (REGENCY CAKESTAND 3 TIER) leads at GBP 164,762.19. Labels show product codes because descriptions vary within some codes. Bars are sorted by net sales descending.
-
+The source workbook was converted to CSV, processed using the documented eligibility rules, and aggregated for analysis. Raw data and customer-level results are not included in this repository.

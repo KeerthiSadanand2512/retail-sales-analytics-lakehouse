@@ -1,4 +1,4 @@
-"""Convert the UCI XLSX workbook to a deterministic UTF-8 CSV; never upload raw data to Git."""
+"""Convert the UCI Online Retail workbook to UTF-8 CSV without filtering rows."""
 import argparse
 import csv
 from datetime import datetime
@@ -52,3 +52,4 @@ if __name__ == '__main__':
     parser.add_argument('--limit', type=int, help='First N rows for a learning sample, not a representative sample')
     args = parser.parse_args()
     print(json.dumps(convert(args.source, args.target, args.limit), indent=2))
+

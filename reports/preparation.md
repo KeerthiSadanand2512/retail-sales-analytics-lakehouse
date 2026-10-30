@@ -1,4 +1,4 @@
-# Local preparation evidence — October 21, 2026
+# Data preparation — October 21, 2026
 
 The original UCI Online Retail workbook was downloaded from the publisher's dataset-352 ZIP. It was converted locally with Python 3.12.14 and openpyxl 3.1.5 using `scripts/prepare_data.py`.
 
@@ -10,8 +10,9 @@ The original UCI Online Retail workbook was downloaded from the publisher's data
 
 Conversion formats datetimes as ISO text, retains blanks, preserves line order and duplicate rows, and does not apply analytics eligibility rules. The sample is the first 10,000 source rows and is not representative of the full dataset.
 
-Four local unit tests passed for conversion behavior. Python source syntax was checked. No PySpark, Delta, or SQL execution occurred: this machine has no Spark/Java runtime, and a Databricks workspace has not yet been connected. The synthetic Spark notebook and full-refresh acceptance tests remain pending.
+Four local conversion tests passed. This record covers workbook conversion only; subsequent Databricks runs are documented in [validation](../docs/validation.md).
 
 No data files, customer-level results, or Databricks credentials are included in this repository. These row counts describe data preparation, not business findings.
 
 Attribution: Chen, D. (2015). [Online Retail](https://doi.org/10.24432/C5BW33). UCI Machine Learning Repository. [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
