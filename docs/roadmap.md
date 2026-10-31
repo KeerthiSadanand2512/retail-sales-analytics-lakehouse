@@ -11,14 +11,15 @@
 - Cross-checked the totals and monthly order counts with SQL.
 - Checked the descriptions of the top merchandise codes and separated postage.
 - Published the findings and two chart exports.
+- Built the Retail Sales Overview dashboard and saved its definition and screenshot.
 - Added local conversion and notebook preflight tests.
 - Ran the updated Python notebook on Python 3.12.3 and Spark 4.2.0 with matching full-data reconciliation.
 
 ## Next
 
-- Record a repeat run and independent SQL checks for the updated notebook, with its exact executed Git revision.
+- Capture the exact executed Git revision for future runs; the updated notebook's repeat run and dashboard SQL totals have been recorded.
 - Update the monthly chart axis from “Total Sales” to “Net Sales (GBP).”
-- Build a dashboard from the validated metrics.
+- Test a fresh import of the dashboard export and review its presentation before publishing.
 
 ## Later
 

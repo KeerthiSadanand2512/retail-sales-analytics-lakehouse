@@ -1,5 +1,6 @@
 # Analysis and run records
 
+- [Dashboard](../dashboards/README.md): Databricks definition, screenshot, and import notes.
 - [Findings](findings.md): sales, product performance, repeat purchasing, and data coverage.
 - [Chart notes](chart-export.md): the two saved Databricks charts and their labels.
 - [Data preparation](preparation.md): input/output checksums and conversion details.

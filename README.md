@@ -4,7 +4,7 @@ A retail data pipeline and sales analysis built with **Databricks Free Edition, 
 
 I built this project to work through both sides of an analytics problem: preparing reliable tables and explaining what the numbers actually mean. It uses the UCI Online Retail dataset, with 541,909 transaction lines from a UK retailer, to examine sales, product performance, and repeat purchasing.
 
-[Read the analysis](reports/findings.md) · [Explore the pipeline](notebooks/01_pipeline.py) · [Run the project](docs/setup.md)
+[Read the analysis](reports/findings.md) · [Explore the pipeline](notebooks/01_pipeline.py) · [Run the project](docs/setup.md) · [Dashboard](dashboards/README.md)
 
 ## Results at a glance
 
@@ -37,6 +37,12 @@ Values are net sales in GBP, despite the exported chart's “Total Sales” axis
 
 The ranking excludes `DOT` and `POST`. Product codes are used because descriptions sometimes vary within a code. All ten displayed codes were checked against their source descriptions.
 
+## Dashboard
+
+![Retail Sales Overview dashboard](reports/figures/retail_sales_overview.png)
+
+The [dashboard export and import notes](dashboards/README.md) include sales KPIs, monthly trends, top merchandise codes, and customer coverage. The export is stored with its original layout; it has not yet been tested through a fresh import. The screenshot shows the editable view rather than a public live dashboard.
+
 ## How it works
 
 ```text
@@ -52,7 +58,7 @@ I retained duplicate-looking lines because invoice and product codes do not esta
 
 1. Convert the workbook with [scripts/prepare_data.py](scripts/prepare_data.py).
 2. Upload the CSV to a Unity Catalog volume.
-3. Import the shared functions, smoke checks, and one pipeline format into the same Databricks folder.
+3. Import `00_transformations.py`, `02_smoke_checks.py`, and `01_pipeline.py` into the same Databricks folder.
 4. Run the smoke checks, configure the pipeline, then enable the full refresh and run it.
 
 The [setup guide](docs/setup.md) covers the commands, paths, and table names. Each refresh replaces six project tables, one at a time; use a dedicated schema and rerun the whole notebook after an interruption.
@@ -64,6 +70,7 @@ The [setup guide](docs/setup.md) covers the commands, paths, and table names. Ea
 | [notebooks](notebooks/) | PySpark pipeline, shared transformations, and smoke checks |
 | [sql](sql/) | Sales and customer analysis |
 | [reports](reports/) | Findings, charts, and execution records |
+| [dashboards](dashboards/) | Databricks dashboard definition and import notes |
 | [docs](docs/) | Setup, architecture, data rules, and validation |
 | [tests](tests/) | Workbook conversion and notebook preflight tests |
 | [scripts](scripts/) | Workbook-to-CSV conversion |

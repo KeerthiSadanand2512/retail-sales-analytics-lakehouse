@@ -1,0 +1,545 @@
+{
+  "datasets": [
+    {
+      "name": "bc4b4b60",
+      "displayName": "Sales Summary",
+      "queryLines": [
+        "SELECT\n",
+        "    currency,\n",
+        "    SUM(CASE WHEN quantity > 0 THEN line_value ELSE 0 END) AS gross_sales,\n",
+        "    SUM(CASE WHEN quantity < 0 THEN -line_value ELSE 0 END) AS return_value,\n",
+        "    SUM(line_value) AS net_sales,\n",
+        "    COUNT(DISTINCT CASE WHEN quantity > 0 THEN invoice_id END) AS sale_orders\n",
+        "FROM workspace.retail_learning.retail_silver\n",
+        "WHERE eligible\n",
+        "GROUP BY currency;"
+      ]
+    },
+    {
+      "name": "514ce4a3",
+      "displayName": "Monthly Sales",
+      "queryLines": [
+        "SELECT\n",
+        "    CAST(date_trunc('MONTH', transaction_date) AS DATE) AS month,\n",
+        "    currency,\n",
+        "    SUM(gross_sales) AS gross_sales,\n",
+        "    SUM(return_value) AS return_value,\n",
+        "    SUM(net_sales) AS net_sales\n",
+        "FROM workspace.retail_learning.retail_gold_daily\n",
+        "GROUP BY 1, 2\n",
+        "ORDER BY 1;"
+      ]
+    },
+    {
+      "name": "d676ac7c",
+      "displayName": "Top Merchandise",
+      "queryLines": [
+        "SELECT\n",
+        "    product_id,\n",
+        "    currency,\n",
+        "    net_sales\n",
+        "FROM workspace.retail_learning.retail_gold_product\n",
+        "WHERE product_id NOT IN ('DOT', 'POST')\n",
+        "ORDER BY net_sales DESC\n",
+        "LIMIT 10;"
+      ]
+    },
+    {
+      "name": "8eee5791",
+      "displayName": "Customer Summary",
+      "queryLines": [
+        "SELECT\n",
+        "    COUNT(*) AS identified_customers,\n",
+        "    SUM(CASE WHEN sale_orders >= 2 THEN 1 ELSE 0 END) AS repeat_customers,\n",
+        "    ROUND(\n",
+        "        100.0 * SUM(CASE WHEN sale_orders >= 2 THEN 1 ELSE 0 END)\n",
+        "        / NULLIF(COUNT(*), 0),\n",
+        "        2\n",
+        "    ) AS repeat_customer_pct\n",
+        "FROM workspace.retail_learning.retail_gold_customer;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "8e93b178",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "net-sales-gbp",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bc4b4b60",
+                  "fields": [
+                    {
+                      "name": "net_sales",
+                      "expression": "`net_sales`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\"><span style=\"font-weight: 700;\">Net Sales (GBP)</span></span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "net_sales"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "gross-sales-gbp",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bc4b4b60",
+                  "fields": [
+                    {
+                      "name": "sum(gross_sales)",
+                      "expression": "SUM(`gross_sales`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\"><span style=\"font-weight: 700;\">Gross Sales (GBP)</span></span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(gross_sales)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "negative-adjustments-gbp",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bc4b4b60",
+                  "fields": [
+                    {
+                      "name": "sum(return_value)",
+                      "expression": "SUM(`return_value`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Negative Adjustments (GBP)</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(return_value)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "sale-orders",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bc4b4b60",
+                  "fields": [
+                    {
+                      "name": "sum(sale_orders)",
+                      "expression": "SUM(`sale_orders`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Sale Orders</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(sale_orders)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "monthly-net-sales-gbp-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "514ce4a3",
+                  "fields": [
+                    {
+                      "name": "monthly(month)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `month`)"
+                    },
+                    {
+                      "name": "sum(net_sales)",
+                      "expression": "SUM(`net_sales`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Monthly Net Sales (GBP)</span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "December 2011 is partial: December 1–9 only",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(month)",
+                  "displayName": "MONTHLY(month)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(net_sales)",
+                  "displayName": "SUM(net_sales)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 5,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "top-10-merchandise-codes-gbp",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d676ac7c",
+                  "fields": [
+                    {
+                      "name": "sum(net_sales)",
+                      "expression": "SUM(`net_sales`)"
+                    },
+                    {
+                      "name": "product_id",
+                      "expression": "`product_id`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Top 10 Merchandise Codes (GBP)</span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Excludes postage codes DOT and POST.",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "annotations": [],
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "sum(net_sales)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "product_id",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "width": 5,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "identified-customers",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "8eee5791",
+                  "fields": [
+                    {
+                      "name": "sum(identified_customers)",
+                      "expression": "SUM(`identified_customers`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\">Identified Customers</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(identified_customers)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "repeat-customers",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "8eee5791",
+                  "fields": [
+                    {
+                      "name": "sum(repeat_customers)",
+                      "expression": "SUM(`repeat_customers`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Repeat Customers</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(repeat_customers)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 8,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "repeat-purchasing",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "8eee5791",
+                  "fields": [
+                    {
+                      "name": "sum(repeat_customer_pct)",
+                      "expression": "SUM(`repeat_customer_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Repeat Purchasing (%)</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(repeat_customer_pct)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 8,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "d4792cf1",
+            "multilineTextboxSpec": {
+              "lines": [
+                "<span style=\"font-size: 14px;\">**Customer coverage:**</span><span style=\"font-size: 14px;\"> Repeat purchasing covers identified customers only. Customer IDs are missing from 24.58% of eligible transaction lines. Repeat purchasing measures multiple sales orders during the dataset period, not long-term retention.</span>"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 12,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
