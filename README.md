@@ -45,6 +45,10 @@ The ranking excludes `DOT` and `POST`. Product codes are used because descriptio
 
 The [dashboard export and import notes](dashboards/README.md) include sales KPIs, monthly trends, top merchandise codes, and customer coverage. A new copy imported from the export displayed the expected KPI values, charts, sorting, and coverage notes. See the [import check](reports/dashboard-import-check.md). The screenshot shows the editable view rather than a public live dashboard.
 
+## Scheduled job
+
+The pipeline also has a serverless Databricks job. A manual job run succeeded, and a daily 09:00 America/Toronto trigger is saved and active. The first automatically triggered run remains unverified. See [job configuration and checks](docs/scheduling.md). Loading is still a full refresh; incremental ingestion is a separate extension.
+
 ## How it works
 
 ```text

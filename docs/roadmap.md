@@ -26,4 +26,11 @@ The manual batch pipeline, SQL analysis, and dashboard scope is complete.
 
 ## Later
 
-Consider incremental loading after establishing a reliable line key, followed by scheduling within Free Edition limits. These features are not implemented yet.
+Incremental loading requires a reliable record or batch identity and remains unimplemented. Scheduling is configured as described below, within Free Edition limits.
+
+## Scheduling extension
+
+- [x] Create a serverless notebook job and pass one manual job run.
+- [x] Save an active daily 09:00 America/Toronto schedule.
+- [ ] Verify a schedule-triggered run and its reconciliation output.
+- [ ] Implement and test incremental ingestion separately from the completed full-refresh baseline.
