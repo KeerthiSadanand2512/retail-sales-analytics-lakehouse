@@ -6,9 +6,9 @@
 # MAGIC
 # MAGIC This notebook loads UCI retail transactions into Delta tables, checks the totals, and explores sales and repeat purchasing. Run `02_smoke_checks` first and keep `00_transformations` in the same folder.
 # MAGIC
-# MAGIC The earlier full-data run returned 539,392 eligible lines and GBP 9,769,872.054 net sales. This revision includes later setup and query cleanup and still needs a fresh Databricks run. The earlier results are recorded in `reports/notebook-export-evidence.json`.
+# MAGIC The full-refresh baseline passed full-data reconciliation and repeated runs. Incremental mode is a new insert-only batch exercise that still needs Databricks validation; see `docs/incremental-loading.md`.
 # MAGIC
-# MAGIC Full refresh replaces six project tables, one at a time. Use a dedicated schema, run one refresh at a time, and rerun from the beginning after a failure.
+# MAGIC Full refresh replaces six project tables, one at a time. Incremental mode inserts unseen source rows into Bronze in a separate test schema, then rebuilds Silver and Gold from accumulated Bronze. Use a dedicated schema, run one refresh at a time, and rerun from the beginning after a failure.
 
 # COMMAND ----------
 # MAGIC %run ./00_transformations
@@ -17,7 +17,7 @@
 # MAGIC %md
 # MAGIC ## Configuration
 # MAGIC
-# MAGIC Set the catalog, schema, and exact uploaded CSV path below. Start with the sample. Review the six target names before setting `ALLOW_FULL_REFRESH = True`. Later SQL cells use the catalog/schema selected during ingestion.
+# MAGIC Set the catalog, schema, and exact uploaded CSV path below. Start with the sample. For incremental mode use a retail_incremental test schema, prepared batch files, and the values from their manifest. Review the six target names before setting `ALLOW_FULL_REFRESH = True`. Later SQL cells use the catalog/schema selected during ingestion.
 
 # COMMAND ----------
 import re
@@ -27,6 +27,12 @@ CATALOG = "workspace"
 SCHEMA = "retail_learning"
 INPUT_PATH = "/Volumes/workspace/retail_learning/retail_input/online_retail_sample.csv"
 ALLOW_FULL_REFRESH = False
+LOAD_MODE = "full_refresh"  # "full_refresh" or "incremental"
+ALLOW_INCREMENTAL_APPEND = False
+SOURCE_DATASET_ID = ""  # From the batch manifest, not a business customer identifier
+SOURCE_TOTAL_ROWS = 0
+BATCH_SHA256 = ""
+BATCH_EXPECTED_ROWS = 0
 
 TARGET_TABLES = (
     "retail_bronze", "retail_silver", "retail_rejects",
@@ -44,7 +50,21 @@ def validate_settings(catalog, schema, input_path):
     if any(part in (".", "..") for part in input_path.split("/")) or any(x in input_path for x in ("*", "?", "[", "]")):
         raise ValueError("Use a single explicit file path, without wildcards or traversal")
 
+def validate_load_mode(mode, schema, dataset_id, total_rows, batch_sha, expected_rows):
+    if mode not in ("full_refresh", "incremental"):
+        raise ValueError("LOAD_MODE must be full_refresh or incremental")
+    if mode == "full_refresh" and schema.startswith("retail_incremental"):
+        raise ValueError("Full refresh cannot target the incremental test schema")
+    if mode == "incremental":
+        if not schema.startswith("retail_incremental"):
+            raise ValueError("Use a separate retail_incremental schema for incremental mode")
+        if not all(re.fullmatch(r"[0-9a-f]{64}", x or "") for x in [dataset_id, batch_sha]):
+            raise ValueError("Copy source_dataset_id and batch SHA-256 from the manifest")
+        if type(total_rows) is not int or type(expected_rows) is not int or not 0 < expected_rows <= total_rows:
+            raise ValueError("Copy positive source_total_rows and batch rows from the manifest")
+
 validate_settings(CATALOG, SCHEMA, INPUT_PATH)
+validate_load_mode(LOAD_MODE, SCHEMA, SOURCE_DATASET_ID, SOURCE_TOTAL_ROWS, BATCH_SHA256, BATCH_EXPECTED_ROWS)
 namespace = f"`{CATALOG}`.`{SCHEMA}`"
 
 def table(name):
@@ -56,6 +76,7 @@ print("Target schema:", namespace)
 print("Input file:", INPUT_PATH)
 print("Tables to replace:", TARGET_TABLES)
 print("Full refresh enabled:", ALLOW_FULL_REFRESH)
+print("Load mode:", LOAD_MODE)
 
 # COMMAND ----------
 # MAGIC %md
@@ -64,32 +85,102 @@ print("Full refresh enabled:", ALLOW_FULL_REFRESH)
 # MAGIC Check the source columns and row count before replacing Bronze. The row-count check adds a CSV read, so keep the input file unchanged during the run.
 
 # COMMAND ----------
-if ALLOW_FULL_REFRESH is not True:
+if LOAD_MODE == "full_refresh" and ALLOW_FULL_REFRESH is not True:
     raise ValueError("Review the six target tables, then set ALLOW_FULL_REFRESH = True")
+if LOAD_MODE == "incremental" and ALLOW_INCREMENTAL_APPEND is not True:
+    raise ValueError("Review the isolated test schema, then set ALLOW_INCREMENTAL_APPEND = True")
 required = ["SOURCE_COLUMNS", "F", "clean_retail", "gold_models"]
 missing = [name for name in required if name not in globals()]
 if missing:
     raise RuntimeError(f"Run %run ./00_transformations first; missing: {missing}")
 
+if LOAD_MODE == "incremental":
+    import hashlib
+    def file_sha256(path):
+        digest = hashlib.sha256()
+        with open(path, "rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+    if file_sha256(INPUT_PATH) != BATCH_SHA256:
+        raise ValueError("Batch bytes differ from the manifest; no tables were written")
+
 raw = (spark.read.option("header", True).option("inferSchema", False)
        .option("multiLine", True).option("escape", '"')
        .option("mode", "FAILFAST").csv(INPUT_PATH))
-if raw.columns != SOURCE_COLUMNS:
-    raise ValueError("Expected the exact columns exported by scripts/prepare_data.py")
+expected_columns = SOURCE_COLUMNS + (["_source_dataset_id", "_source_row_number"] if LOAD_MODE == "incremental" else [])
+if raw.columns != expected_columns:
+    raise ValueError("Unexpected CSV columns for the selected load mode")
 input_rows = raw.count()
 if input_rows == 0:
     raise ValueError("Input is empty; no project tables have been overwritten")
 
+if LOAD_MODE == "incremental":
+    if input_rows != BATCH_EXPECTED_ROWS:
+        raise ValueError("Batch row count differs from the manifest")
+    bad_identity = raw.filter(
+        F.col("_source_dataset_id").isNull() |
+        (F.col("_source_dataset_id") != SOURCE_DATASET_ID) |
+        F.col("_source_row_number").isNull() |
+        (~F.col("_source_row_number").rlike(r"^[1-9][0-9]*$")) |
+        F.expr("try_cast(_source_row_number AS BIGINT) IS NULL") |
+        (F.expr("try_cast(_source_row_number AS BIGINT)") > SOURCE_TOTAL_ROWS))
+    if bad_identity.limit(1).count():
+        raise ValueError("Invalid source-row identity in batch")
+    if raw.select("_source_row_number").distinct().count() != input_rows:
+        raise ValueError("A source-row identity occurs more than once in this batch")
+
+incoming = (raw.select("*", F.col("_metadata.file_path").alias("source_file"))
+    .withColumn("ingested_at", F.current_timestamp())
+    .withColumn("source_batch", F.lit(INPUT_PATH)))
+if LOAD_MODE == "incremental":
+    incoming = (incoming
+        .withColumn("_source_row_number", F.col("_source_row_number").cast("long"))
+        .withColumn("_source_row_hash", F.sha2(F.to_json(F.struct(*[F.col(c) for c in SOURCE_COLUMNS]), {"ignoreNullFields": "false"}), 256))
+        .withColumn("_batch_sha256", F.lit(BATCH_SHA256)))
+
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {namespace}")
 spark.sql(f"USE CATALOG `{CATALOG}`")
 spark.sql(f"USE SCHEMA `{SCHEMA}`")
-bronze = (raw.select("*", F.col("_metadata.file_path").alias("source_file"))
-    .withColumn("ingested_at", F.current_timestamp())
-    .withColumn("source_batch", F.lit(INPUT_PATH)))
-bronze.write.format("delta").mode("overwrite").option("overwriteSchema", True).saveAsTable(table("retail_bronze"))
-bronze = spark.table(table("retail_bronze"))
-if bronze.count() != input_rows:
-    raise ValueError("Bronze row count differs from the input preflight; investigate before proceeding")
+bronze_name = table("retail_bronze")
+if LOAD_MODE == "full_refresh":
+    incoming.write.format("delta").mode("overwrite").option("overwriteSchema", True).saveAsTable(bronze_name)
+    inserted_rows = input_rows
+else:
+    if not spark.catalog.tableExists(bronze_name):
+        incoming.limit(0).write.format("delta").mode("errorifexists").saveAsTable(bronze_name)
+    existing = spark.table(bronze_name)
+    if not {"_source_dataset_id", "_source_row_number", "_source_row_hash", "_batch_sha256"}.issubset(existing.columns):
+        raise ValueError("Existing Bronze is not an incremental table; choose a fresh test schema")
+    if existing.filter(F.col("_source_dataset_id") != SOURCE_DATASET_ID).limit(1).count():
+        raise ValueError("The schema belongs to a different source snapshot")
+    if existing.select("_source_dataset_id", "_source_row_number").distinct().count() != existing.count():
+        raise ValueError("Existing Bronze has duplicate source identities")
+    key = ["_source_dataset_id", "_source_row_number"]
+    conflicting = (incoming.alias("s").join(existing.alias("t"), key, "inner")
+        .filter(F.col("s._source_row_hash") != F.col("t._source_row_hash")))
+    if conflicting.limit(1).count():
+        raise ValueError("An existing source row changed; corrections are not supported")
+    before_rows = existing.count()
+    inserted_rows = incoming.join(existing.select(*key), key, "left_anti").count()
+    if file_sha256(INPUT_PATH) != BATCH_SHA256:
+        raise ValueError("Input changed during the run; no batch merge was attempted")
+    incoming.createOrReplaceTempView("_retail_incoming_batch")
+    spark.sql(f"""MERGE INTO {bronze_name} AS t
+        USING _retail_incoming_batch AS s
+        ON t._source_dataset_id = s._source_dataset_id
+           AND t._source_row_number = s._source_row_number
+        WHEN NOT MATCHED THEN INSERT *""")
+    after_rows = spark.table(bronze_name).count()
+    if after_rows != before_rows + inserted_rows:
+        raise ValueError("Unexpected Bronze growth; do not run concurrent writers")
+
+bronze = spark.table(bronze_name)
+if LOAD_MODE == "full_refresh" and bronze.count() != input_rows:
+    raise ValueError("Bronze row count differs from the input preflight")
+print({"load_mode": LOAD_MODE, "batch_rows": input_rows,
+       "inserted_rows": inserted_rows, "already_present_rows": input_rows - inserted_rows,
+       "bronze_total_rows": bronze.count()})
 
 # COMMAND ----------
 # MAGIC %md
@@ -135,7 +226,7 @@ display(spark.table(table('retail_gold_daily')).orderBy('transaction_date'))
 
 # COMMAND ----------
 import platform
-print({"python_version": platform.python_version(), "spark_version": spark.version,
+print({"load_mode": LOAD_MODE, "python_version": platform.python_version(), "spark_version": spark.version,
        "input_rows": input_rows, "source_path": INPUT_PATH})
 
 # COMMAND ----------
@@ -298,3 +389,4 @@ print({"python_version": platform.python_version(), "spark_version": spark.versi
 # MAGIC Record the summary, input SHA-256, Git revision, Python/Spark versions, and any failures. Repeat the run against the same input and compare counts and totals.
 # MAGIC
 # MAGIC Publish aggregate results only. Saved charts are in `reports/figures/`; chart settings need to be recreated after import.
+

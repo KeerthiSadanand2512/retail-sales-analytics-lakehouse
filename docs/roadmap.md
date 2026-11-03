@@ -33,4 +33,6 @@ Incremental loading requires a reliable record or batch identity and remains uni
 - [x] Create a serverless notebook job and pass one manual job run.
 - [x] Save an active daily 09:00 America/Toronto schedule.
 - [ ] Verify a schedule-triggered run and its reconciliation output.
-- [ ] Implement and test incremental ingestion separately from the completed full-refresh baseline.
+- [x] Prepare incremental Bronze ingestion, stable source-row identities, and local checks.
+- [ ] Validate the incremental batch/replay sequence in Databricks before deploying it.
+
