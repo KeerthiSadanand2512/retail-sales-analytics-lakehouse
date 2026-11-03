@@ -29,7 +29,7 @@ Refresh and compare the results with the [findings](../reports/findings.md): GBP
 
 ## Scope and checks
 
-The export has four datasets, seven counters, two bar charts, and one text widget. Dataset references, encoded field names, layout dimensions, and the merchandise sort were checked. The dataset results were matched to the validated outputs during dashboard construction. A fresh import of this exported file has not yet been tested.
+The export has four datasets, seven counters, two bar charts, and one text widget. Dataset references, encoded field names, layout dimensions, and the merchandise sort were checked. The dataset results were matched to the validated outputs during dashboard construction. A fresh copy imported from this file was visually checked on November 3, 2026. The expected KPI values, both charts, merchandise ranking order, and explanatory notes appeared correctly. See [the import record](../reports/dashboard-import-check.md).
 
 These are full-period summaries. No date or country filter is configured; adding a filter would require checking that it applies consistently to all four datasets. Customer figures cover identified purchasing customers only; 24.58% of eligible lines lack an ID. December 2011 ends on the ninth, and negative adjustments do not establish paid refunds.
 

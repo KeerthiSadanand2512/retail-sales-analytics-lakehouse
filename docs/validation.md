@@ -26,7 +26,11 @@ The preflight tests mock Spark access. They test failure handling, not Delta per
 
 The updated `01_pipeline.py` was run on Python 3.12.3 and Spark 4.2.0. Its reported full-data counts and net sales match the table above, and row accounting plus daily/product reconciliation passed. See [the run record](../reports/runtime-validation.md).
 
-A second run and fresh independent SQL outputs for this latest revision have not yet been recorded. Earlier repeat-run and SQL evidence remains documented separately.
+The updated Python notebook was run a second time with the same counts and net total, as recorded in the run record. Sales and customer SQL results were also checked during dashboard construction against the earlier validated totals.
 
 The earlier export records Databricks environment version 6. Exact Python/Spark versions and the Git revision of that run were not captured. Use the [run-record template](../reports/databricks-run-template.md) for the next run.
 
+
+## Dashboard import
+
+On November 3, 2026, a new copy imported from the saved dashboard definition displayed the expected KPI values, both charts, merchandise sort order, and coverage notes. This was a visual check using the existing project tables, not a clean-workspace rebuild or an automated refresh audit. See [the import record and screenshot](../reports/dashboard-import-check.md).

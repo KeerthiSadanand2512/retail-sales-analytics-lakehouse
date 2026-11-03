@@ -4,6 +4,8 @@ A retail data pipeline and sales analysis built with **Databricks Free Edition, 
 
 I built this project to work through both sides of an analytics problem: preparing reliable tables and explaining what the numbers actually mean. It uses the UCI Online Retail dataset, with 541,909 transaction lines from a UK retailer, to examine sales, product performance, and repeat purchasing.
 
+**Status:** Complete for the manual batch pipeline, SQL analysis, and dashboard scope. The dashboard export was imported into a new copy and visually checked on November 3, 2026.
+
 [Read the analysis](reports/findings.md) · [Explore the pipeline](notebooks/01_pipeline.py) · [Run the project](docs/setup.md) · [Dashboard](dashboards/README.md)
 
 ## Results at a glance
@@ -41,7 +43,7 @@ The ranking excludes `DOT` and `POST`. Product codes are used because descriptio
 
 ![Retail Sales Overview dashboard](reports/figures/retail_sales_overview.png)
 
-The [dashboard export and import notes](dashboards/README.md) include sales KPIs, monthly trends, top merchandise codes, and customer coverage. The export is stored with its original layout; it has not yet been tested through a fresh import. The screenshot shows the editable view rather than a public live dashboard.
+The [dashboard export and import notes](dashboards/README.md) include sales KPIs, monthly trends, top merchandise codes, and customer coverage. A new copy imported from the export displayed the expected KPI values, charts, sorting, and coverage notes. See the [import check](reports/dashboard-import-check.md). The screenshot shows the editable view rather than a public live dashboard.
 
 ## How it works
 
