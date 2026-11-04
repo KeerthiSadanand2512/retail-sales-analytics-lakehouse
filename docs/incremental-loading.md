@@ -1,6 +1,6 @@
 # Incremental batch loading
 
-Status: implemented for testing; Databricks execution pending. The completed full-refresh pipeline and dashboard remain the baseline.
+Validated in Databricks Free Edition with two 5,000-row batches in `workspace.retail_incremental_demo`.
 
 ## What changes
 
@@ -54,12 +54,14 @@ Run the smoke checks first, then the pipeline from the beginning. In a fresh sch
 | 3 | Second batch, its own path/checksum | 5,000 | 10,000 |
 | 4 | Same second batch, unchanged | 0 | 10,000 |
 
-After run 3 and run 4, the accumulated result should match the earlier first-10,000-row sample: 9,954 accepted, 46 rejected, and GBP 180,667.750000 net sales. These are acceptance targets from the previously validated sample, not claimed incremental execution results.
+All four runs matched the table above. On each replay, all 5,000 incoming rows were already present. The accumulated result matched the earlier 10,000-row sample with 9,954 accepted rows, 46 rejected rows, and £180,667.75 in eligible net sales. Row accounting and the daily and product reconciliations passed.
 
-Record every printed ingestion summary and reconciliation result. Also test a wrong checksum and confirm the notebook stops before writes. For a completed full-input backfill, compare accumulated counts and totals to the full-refresh baseline; that is beyond the initial two-batch test.
+The initial Bronze creation hit an unsupported write mode in Spark Connect. Using `mode("ignore")` allowed the notebook to create the empty table and proceed with the insert-only merge.
+
+A mismatched batch checksum stopped the run before table writes. For a completed full-input backfill, compare accumulated counts and totals to the full-refresh baseline; that is beyond the initial two-batch test.
 
 ## Limits
 
 Only Bronze grows incrementally. Silver/Gold full rebuilds still consume compute. Table writes are separate transactions, and concurrent writers are unsupported. A failed run should be retried with the identical input. This does not make the existing daily full-refresh job incremental; that workspace job must remain unchanged until the new mode is tested and intentionally deployed.
 
-The 20 local tests cover conversion, preflight settings, and deterministic batch preparation. Spark/Delta MERGE and the replay sequence require execution in Databricks. See the official [Delta MERGE reference](https://docs.databricks.com/aws/en/delta/merge) for insert-only merge behavior.
+The 20 local tests cover conversion, preflight settings, and deterministic batch preparation. See the official [Delta MERGE reference](https://docs.databricks.com/aws/en/delta/merge) for insert-only merge behavior.

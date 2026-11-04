@@ -47,7 +47,7 @@ The [dashboard export and import notes](dashboards/README.md) include sales KPIs
 
 ## Incremental loading extension
 
-The same `01_pipeline.py` now includes an insert-only Bronze loading mode for immutable prepared batches. It uses a separate test schema and preserves source-row identity across replays. The implementation has local checks; Databricks merge and replay validation are still pending. See [incremental loading](docs/incremental-loading.md). The working daily full-refresh job is unchanged.
+The same `01_pipeline.py` now includes an insert-only Bronze loading mode for immutable prepared batches. It uses a separate test schema and preserves source-row identity across replays. In Databricks, two 5,000-row batches loaded successfully. Replaying either batch added zero rows. See [incremental loading](docs/incremental-loading.md). The working daily full-refresh job is unchanged.
 
 ## Scheduled job
 

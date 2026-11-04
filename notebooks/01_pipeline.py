@@ -6,7 +6,7 @@
 # MAGIC
 # MAGIC This notebook loads UCI retail transactions into Delta tables, checks the totals, and explores sales and repeat purchasing. Run `02_smoke_checks` first and keep `00_transformations` in the same folder.
 # MAGIC
-# MAGIC The full-refresh baseline passed full-data reconciliation and repeated runs. Incremental mode is a new insert-only batch exercise that still needs Databricks validation; see `docs/incremental-loading.md`.
+# MAGIC The full-refresh baseline passed full-data reconciliation and repeated runs. Incremental mode passed the two-batch Databricks replay test. See `docs/incremental-loading.md`.
 # MAGIC
 # MAGIC Full refresh replaces six project tables, one at a time. Incremental mode inserts unseen source rows into Bronze in a separate test schema, then rebuilds Silver and Gold from accumulated Bronze. Use a dedicated schema, run one refresh at a time, and rerun from the beginning after a failure.
 
@@ -148,7 +148,7 @@ if LOAD_MODE == "full_refresh":
     inserted_rows = input_rows
 else:
     if not spark.catalog.tableExists(bronze_name):
-        incoming.limit(0).write.format("delta").mode("errorifexists").saveAsTable(bronze_name)
+        incoming.limit(0).write.format("delta").mode("ignore").saveAsTable(bronze_name)
     existing = spark.table(bronze_name)
     if not {"_source_dataset_id", "_source_row_number", "_source_row_hash", "_batch_sha256"}.issubset(existing.columns):
         raise ValueError("Existing Bronze is not an incremental table; choose a fresh test schema")
