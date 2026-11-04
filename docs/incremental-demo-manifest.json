@@ -1,0 +1,22 @@
+{
+  "source_dataset_id": "7615e19743f2c3e8e641375743c276dbb0ed64a70cf210464ce72c335db3d221",
+  "source_total_rows": 541909,
+  "selected_rows": 10000,
+  "selection": "first rows; not a representative sample",
+  "batches": [
+    {
+      "file": "retail_batch_0001.csv",
+      "rows": 5000,
+      "first_source_row": 1,
+      "last_source_row": 5000,
+      "sha256": "33182d1ab9ce44ed8dc92f4247fdddaee29b7fb1a2febbd624348c507c5211a5"
+    },
+    {
+      "file": "retail_batch_0002.csv",
+      "rows": 5000,
+      "first_source_row": 5001,
+      "last_source_row": 10000,
+      "sha256": "be5486c5a798557fc349eb81b5b09913b47e5b12074b4917ff56f88561afc404"
+    }
+  ]
+}

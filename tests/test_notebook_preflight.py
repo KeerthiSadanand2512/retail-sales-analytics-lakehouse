@@ -62,6 +62,31 @@ class PreflightTests(unittest.TestCase):
         spark.sql.assert_not_called()
         self.assertEqual(raw.write.mock_calls, [])
 
+class IncrementalSettingsTests(unittest.TestCase):
+    setUp = PreflightTests.setUp
+    def test_incremental_cannot_target_dashboard_schema(self):
+        with self.assertRaisesRegex(ValueError, 'separate retail_incremental'):
+            self.env['validate_load_mode']('incremental', 'retail_learning', 'a'*64, 10, 'b'*64, 5)
+
+    def test_full_refresh_cannot_erase_incremental_history(self):
+        with self.assertRaisesRegex(ValueError, 'cannot target'):
+            self.env['validate_load_mode']('full_refresh', 'retail_incremental_demo', '', 0, '', 0)
+
+    def test_manifest_settings_are_required(self):
+        for dataset, total, sha, rows in [('', 10, 'b'*64, 5), ('a'*64, 0, 'b'*64, 5), ('a'*64, 10, 'x', 5), ('a'*64, 10, 'b'*64, 11)]:
+            with self.subTest(dataset=dataset, total=total, rows=rows), self.assertRaises(ValueError):
+                self.env['validate_load_mode']('incremental', 'retail_incremental_demo', dataset, total, sha, rows)
+
+    def test_valid_incremental_manifest(self):
+        self.env['validate_load_mode']('incremental', 'retail_incremental_demo', 'a'*64, 10, 'b'*64, 5)
+
+    def test_incremental_opt_in_precedes_spark_access(self):
+        self.env.update(LOAD_MODE='incremental', ALLOW_INCREMENTAL_APPEND=False, spark=MagicMock())
+        with self.assertRaisesRegex(ValueError, 'ALLOW_INCREMENTAL_APPEND'):
+            exec(INGEST, self.env)
+        self.assertEqual(self.env['spark'].mock_calls, [])
+
 if __name__ == '__main__':
     unittest.main()
+
 

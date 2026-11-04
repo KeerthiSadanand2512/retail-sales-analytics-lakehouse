@@ -45,6 +45,10 @@ The ranking excludes `DOT` and `POST`. Product codes are used because descriptio
 
 The [dashboard export and import notes](dashboards/README.md) include sales KPIs, monthly trends, top merchandise codes, and customer coverage. A new copy imported from the export displayed the expected KPI values, charts, sorting, and coverage notes. See the [import check](reports/dashboard-import-check.md). The screenshot shows the editable view rather than a public live dashboard.
 
+## Incremental loading extension
+
+The same `01_pipeline.py` now includes an insert-only Bronze loading mode for immutable prepared batches. It uses a separate test schema and preserves source-row identity across replays. In Databricks, two 5,000-row batches loaded successfully. Replaying either batch added zero rows. See [incremental loading](docs/incremental-loading.md). The working daily full-refresh job is unchanged.
+
 ## Scheduled job
 
 The pipeline also has a serverless Databricks job. A manual job run succeeded, and a daily 09:00 America/Toronto trigger is saved and active. The first automatically triggered run remains unverified. See [job configuration and checks](docs/scheduling.md). Loading is still a full refresh; incremental ingestion is a separate extension.
@@ -86,4 +90,5 @@ The [setup guide](docs/setup.md) covers the commands, paths, and table names. Ea
 Chen, D. (2015). [Online Retail](https://doi.org/10.24432/C5BW33). UCI Machine Learning Repository. [Source page](https://archive.ics.uci.edu/dataset/352/online+retail) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 The observation period is December 1, 2010–December 9, 2011, with prices in sterling. Raw files and customer-level outputs stay outside Git. The code license has not been selected; the dataset retains its own license and attribution.
+
 
